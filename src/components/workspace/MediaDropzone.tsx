@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { UploadCloud, Image as ImageIcon, Video as VideoIcon, Clipboard, Sparkles, Layers } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, Video as VideoIcon, Clipboard, FileArchive, Sparkles } from "lucide-react";
 
 interface MediaDropzoneProps {
   mode: "image" | "video";
@@ -81,10 +81,10 @@ export function MediaDropzone({ mode, onFilesSelected, disabled }: MediaDropzone
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
-      className={`group relative flex min-h-[420px] w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed p-10 text-center transition-all duration-300 bg-grid-dots ${
+      className={`group relative flex min-h-[380px] w-full cursor-pointer flex-col items-center justify-center rounded-[22px] border-[1.5px] border-dashed p-8 text-center transition-all ${
         isDragOver
-          ? "border-indigo-400 bg-indigo-500/[0.08] shadow-[0_0_60px_rgba(99,102,241,0.25)] scale-[1.005]"
-          : "border-white/[0.10] bg-[#0c0f17]/60 hover:border-indigo-400/50 hover:bg-[#0f131f]/80 shadow-2xl"
+          ? "border-[#000000] bg-[#aafdc0]/20"
+          : "border-[#c0c2a9] bg-[#ffffff] hover:border-[#000000] hover:bg-[#fcfdf7]"
       } ${disabled ? "opacity-50 pointer-events-none" : ""}`}
     >
       <input
@@ -96,58 +96,42 @@ export function MediaDropzone({ mode, onFilesSelected, disabled }: MediaDropzone
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
       />
 
-      {/* Ambient background glow inside dropzone */}
-      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 h-64 w-96 rounded-full bg-indigo-500/10 blur-[80px] group-hover:bg-indigo-500/20 transition-all duration-500" />
-
-      {/* Decorative center icon card */}
-      <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-white/[0.12] bg-gradient-to-b from-white/[0.08] to-white/[0.02] shadow-[0_8px_24px_rgba(0,0,0,0.4)] group-hover:scale-105 group-hover:border-indigo-500/40 transition-all duration-300">
-        <div className="absolute inset-0 rounded-2xl bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* Coda Center Icon container: 22px rounded square filled with Mint Sprout and black outline */}
+      <div className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-[22px] border-[1.5px] border-[#000000] bg-[#aafdc0] text-[#000000] transition-transform duration-200 group-hover:scale-105">
         {mode === "image" ? (
-          <ImageIcon className="h-9 w-9 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
+          <ImageIcon className="h-7 w-7" />
         ) : (
-          <VideoIcon className="h-9 w-9 text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+          <VideoIcon className="h-7 w-7" />
         )}
       </div>
 
-      {/* Main instructions */}
-      <h3 className="text-xl font-bold tracking-tight text-foreground">
+      {/* Main instructions with monumental bold typography */}
+      <h3 className="text-xl font-bold text-[#000000] tracking-tight uppercase font-sans">
         Drop {mode === "image" ? "Gemini images" : "Veo videos"} here or{" "}
-        <span className="text-indigo-400 underline decoration-indigo-400/40 underline-offset-4 group-hover:decoration-indigo-400 transition-all">
+        <span className="underline decoration-[#000000] underline-offset-4 group-hover:text-[#202020]">
           browse files
         </span>
       </h3>
 
-      <p className="mt-2 text-xs text-muted-foreground/90 max-w-md leading-relaxed">
+      <p className="mt-2 text-xs text-[#5a5a4f] max-w-md leading-relaxed font-sans">
         {mode === "image"
-          ? "Mathematically reconstruct original pixels for Gemini 3.5+ and Legacy watermarks with zero quality degradation."
-          : "Clean Veo watermarks with hardware WebCodecs frame acceleration, live interactive corner tuning, and lossless audio passthrough."}
+          ? "Supports Gemini 3.5+, Legacy Gemini, and free-tier half-scale PNGs/JPEGs. Batch files and clipboard paste supported."
+          : "Supports Veo landscape & portrait videos. Multi-file batch queue, live interactive corner tuner, and lossless audio passthrough."}
       </p>
 
-      {/* Format pills */}
-      <div className="mt-5 flex items-center gap-2">
-        {(mode === "image" ? ["PNG", "JPEG", "WEBP", "Lossless"] : ["MP4", "WEBM", "MOV", "4K Ready"]).map((tag) => (
-          <span
-            key={tag}
-            className="rounded-md border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] font-medium text-slate-300 shadow-sm"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      {/* Quick shortcuts / hints */}
-      <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5 text-[11px] font-mono text-muted-foreground">
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#121622]/80 px-3 py-1 shadow-sm">
-          <Clipboard className="h-3 w-3 text-indigo-400" />
-          <span>Ctrl+V / ⌘+V paste</span>
+      {/* Coda Pill Badges */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-2 font-mono text-[11px] text-[#202020]">
+        <div className="flex items-center gap-1.5 rounded-full border-[1.5px] border-[#c0c2a9] bg-[#edeee1] px-3 py-1">
+          <Clipboard className="h-3 w-3 text-[#000000]" />
+          <span>Ctrl+V / ⌘+V to paste</span>
         </div>
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#121622]/80 px-3 py-1 shadow-sm">
-          <Layers className="h-3 w-3 text-cyan-400" />
-          <span>Batch files supported</span>
+        <div className="flex items-center gap-1.5 rounded-full border-[1.5px] border-[#c0c2a9] bg-[#edeee1] px-3 py-1">
+          <FileArchive className="h-3 w-3 text-[#5a5a4f]" />
+          <span>{acceptedExtensions}</span>
         </div>
-        <div className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#121622]/80 px-3 py-1 shadow-sm">
-          <Sparkles className="h-3 w-3 text-amber-400" />
-          <span>100% In-Browser</span>
+        <div className="flex items-center gap-1.5 rounded-full border-[1.5px] border-[#c0c2a9] bg-[#edeee1] px-3 py-1">
+          <UploadCloud className="h-3 w-3 text-[#003d21]" />
+          <span>Batch queue enabled</span>
         </div>
       </div>
     </div>

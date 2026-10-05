@@ -18,43 +18,39 @@ export function TelemetryBadge({ result, dimensions }: TelemetryBadgeProps) {
   const confPercent = Math.round(confidence * 100);
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-xs">
+    <div className="flex flex-wrap items-center gap-2 font-mono text-[11px]">
       {/* Status Badge */}
       {isRemoved ? (
         <Badge
           variant="outline"
-          className="h-7 gap-1.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-300 font-mono text-[11px] px-2.5 shadow-sm"
+          className="border-[1.5px] border-[#003d21]/30 bg-[#aafdc0] text-[#003d21] font-semibold"
         >
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-          </span>
-          <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-          <span className="font-semibold">Cleaned</span>
+          <CheckCircle2 className="h-3 w-3 text-[#003d21]" />
+          <span>Restored Exact</span>
         </Badge>
       ) : (
         <Badge
           variant="outline"
-          className="h-7 gap-1.5 border-amber-500/30 bg-amber-500/10 text-amber-300 font-mono text-[11px] px-2.5"
+          className="border-[1.5px] border-[#c0c2a9] bg-[#ffc0e6] text-[#3f0929] font-medium"
         >
-          <AlertTriangle className="h-3 w-3 text-amber-400" />
-          <span>No Watermark Detected</span>
+          <AlertTriangle className="h-3 w-3" />
+          <span>Skipped (No Watermark)</span>
         </Badge>
       )}
 
       {/* Profile & Resolution */}
       {dimensions && (
-        <Badge variant="outline" className="h-7 border-white/[0.08] bg-[#121520]/80 font-mono text-[11px] text-slate-300 px-2.5 shadow-sm">
-          {dimensions.width} &times; {dimensions.height}
+        <Badge variant="outline" className="border-[1.5px] border-[#c0c2a9] bg-[#edeee1] text-[#202020]">
+          {dimensions.width} × {dimensions.height}
         </Badge>
       )}
 
       {result.variant && (
-        <Badge variant="outline" className="h-7 border-indigo-500/30 bg-indigo-500/10 font-mono text-[11px] text-indigo-300 px-2.5 gap-1.5 shadow-sm">
-          <Sparkles className="h-3 w-3 text-indigo-400" />
-          <span>Profile: {result.variant.toUpperCase()}</span>
+        <Badge variant="outline" className="border-[1.5px] border-[#c0c2a9] bg-[#ffffff] text-[#000000] gap-1">
+          <Sparkles className="h-3 w-3 text-[#000000]" />
+          <span>PROFILE: {result.variant.toUpperCase()}</span>
           {result.usedLegacyFallback && (
-            <span className="text-[10px] text-amber-300 font-bold">(Fallback)</span>
+            <span className="text-[9px] text-[#5a5a4f]">(Fallback)</span>
           )}
         </Badge>
       )}
@@ -63,21 +59,15 @@ export function TelemetryBadge({ result, dimensions }: TelemetryBadgeProps) {
       {result.detection && (
         <Badge
           variant="outline"
-          className={`h-7 border-white/[0.08] bg-[#121520]/80 font-mono text-[11px] px-2.5 ${
-            confPercent >= 75
-              ? "text-emerald-400 border-emerald-500/30"
-              : confPercent >= 25
-              ? "text-amber-400 border-amber-500/30"
-              : "text-slate-400"
-          }`}
+          className="border-[1.5px] border-[#c0c2a9] bg-[#ffffff] text-[#202020]"
         >
           {confPercent}% Match
         </Badge>
       )}
 
       {/* Latency */}
-      <Badge variant="outline" className="h-7 gap-1.5 border-white/[0.08] bg-[#121520]/80 font-mono text-[11px] text-slate-300 ml-auto px-2.5">
-        <Clock className="h-3 w-3 text-slate-400" />
+      <Badge variant="outline" className="border-[1.5px] border-[#c0c2a9] bg-[#edeee1] text-[#5a5a4f] ml-auto">
+        <Clock className="h-3 w-3" />
         <span>{result.elapsedMs.toFixed(1)} ms</span>
       </Badge>
     </div>

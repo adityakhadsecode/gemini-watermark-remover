@@ -92,7 +92,7 @@ export function ComparisonSlider({
     try {
       (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     } catch {
-      // Ignore if pointer capture release fails
+      // Ignore
     }
   };
 
@@ -115,38 +115,38 @@ export function ComparisonSlider({
   };
 
   return (
-    <div className="relative flex flex-col w-full rounded-2xl border border-white/[0.08] bg-[#0c0e15] overflow-hidden shadow-2xl">
-      {/* Top Studio Control Bar */}
-      <div className="flex h-12 items-center justify-between border-b border-white/[0.07] bg-[#0f121a]/90 backdrop-blur-md px-4 text-xs">
-        <div className="flex items-center gap-2.5">
-          <Badge variant="outline" className="font-mono text-[11px] font-medium text-slate-300 border-white/[0.1] bg-white/[0.02] px-2 py-0.5">
+    <div className="relative flex flex-col w-full rounded-[22px] border-[1.5px] border-[#000000] bg-[#ffffff] overflow-hidden">
+      {/* Top Studio Control Bar: Bone (#edeee1) background with Sage Mist border */}
+      <div className="flex h-12 items-center justify-between border-b-[1.5px] border-[#c0c2a9] bg-[#edeee1] px-4 text-xs">
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="font-mono text-[11px] bg-[#ffffff] text-[#000000] border-[#c0c2a9]">
             {Math.round(zoom * 100)}%
           </Badge>
-          <div className="flex items-center gap-1 border-l border-white/[0.08] pl-2.5">
+          <div className="flex items-center gap-1 border-l-[1.5px] border-[#c0c2a9] pl-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon-xs"
               onClick={() => setZoom((z) => Math.min(5, z + 0.25))}
-              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Zoom In"
+              className="bg-[#ffffff]"
             >
               <ZoomIn className="h-3.5 w-3.5" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon-xs"
               onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
-              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Zoom Out"
+              className="bg-[#ffffff]"
             >
               <ZoomOut className="h-3.5 w-3.5" />
             </Button>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon-xs"
               onClick={resetView}
-              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Reset View"
+              className="bg-[#ffffff]"
             >
               <Maximize2 className="h-3.5 w-3.5" />
             </Button>
@@ -157,9 +157,9 @@ export function ComparisonSlider({
               variant="outline"
               size="xs"
               onClick={focusWatermark}
-              className="btn-press text-[11px] font-mono h-7 border-indigo-500/30 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 hover:border-indigo-500/50"
+              className="text-[11px] font-mono h-7 border-[#000000] bg-[#aafdc0] text-[#003d21] hover:bg-[#96f2af]"
             >
-              <SlidersHorizontal className="h-3 w-3 mr-1.5 text-indigo-400" />
+              <SlidersHorizontal className="h-3 w-3 mr-1" />
               Focus Watermark
             </Button>
           )}
@@ -168,22 +168,18 @@ export function ComparisonSlider({
         {/* Peek Original Button */}
         <div className="flex items-center gap-2">
           <Button
-            variant={isPeekingOriginal ? "default" : "secondary"}
+            variant={isPeekingOriginal ? "default" : "outline"}
             size="xs"
             onMouseDown={() => setIsPeekingOriginal(true)}
             onMouseUp={() => setIsPeekingOriginal(false)}
             onTouchStart={() => setIsPeekingOriginal(true)}
             onTouchEnd={() => setIsPeekingOriginal(false)}
-            className={`btn-press text-[11px] h-7 gap-1.5 font-medium transition-all ${
-              isPeekingOriginal
-                ? "bg-amber-500 hover:bg-amber-400 text-black font-semibold shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-                : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08]"
-            }`}
+            className="text-[11px] h-7 gap-1.5 font-mono"
           >
-            <Eye className="h-3 w-3" />
+            <Eye className="h-3.5 w-3.5" />
             <span>Hold to Peek Original</span>
-            <kbd className="hidden sm:inline-block rounded border border-white/10 bg-black/40 px-1.5 py-0.5 text-[9px] font-mono text-slate-300 shadow-inner">
-              Space
+            <kbd className="hidden sm:inline-block rounded-[4px] border border-[#c0c2a9] bg-[#ffffff] px-1 text-[9px] font-mono text-[#000000]">
+              V
             </kbd>
           </Button>
         </div>
@@ -196,11 +192,8 @@ export function ComparisonSlider({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="relative flex h-[560px] w-full select-none items-center justify-center overflow-hidden bg-[#07080c] cursor-crosshair"
+        className="relative flex h-[540px] w-full select-none items-center justify-center overflow-hidden bg-[#202020] cursor-crosshair"
       >
-        {/* Subtle grid background */}
-        <div className="pointer-events-none absolute inset-0 bg-grid-dots opacity-40" />
-
         <div
           className="relative max-h-full max-w-full transition-transform duration-75"
           style={{
@@ -211,13 +204,13 @@ export function ComparisonSlider({
           <img
             src={cleanedUrl}
             alt="Cleaned preview"
-            className="max-h-[500px] w-auto max-w-full object-contain pointer-events-none rounded shadow-2xl"
+            className="max-h-[500px] w-auto max-w-full object-contain pointer-events-none rounded-[13px]"
             draggable={false}
           />
 
           {/* Overlay Layer: Original Image clipped by split-slider */}
           <div
-            className="absolute inset-0 overflow-hidden pointer-events-none rounded"
+            className="absolute inset-0 overflow-hidden pointer-events-none rounded-[13px]"
             style={{
               clipPath: isPeekingOriginal
                 ? "polygon(0 0, 100% 0, 100% 100%, 0 100%)"
@@ -235,7 +228,7 @@ export function ComparisonSlider({
           {/* Watermark Region Outline */}
           {watermarkRegion && (
             <div
-              className="absolute border border-indigo-400/70 bg-indigo-500/10 pointer-events-none rounded-sm transition-all shadow-[0_0_12px_rgba(99,102,241,0.25)]"
+              className="absolute border-[1.5px] border-[#aafdc0] bg-[#aafdc0]/20 pointer-events-none rounded-[4px] transition-all"
               style={{
                 left: `${watermarkRegion.x}px`,
                 top: `${watermarkRegion.y}px`,
@@ -243,7 +236,7 @@ export function ComparisonSlider({
                 height: `${watermarkRegion.height}px`,
               }}
             >
-              <span className="absolute -top-5 right-0 font-mono text-[9px] font-semibold text-indigo-300 bg-[#0c0e15]/90 px-1.5 py-0.5 rounded border border-indigo-500/30 shadow-md">
+              <span className="absolute -top-5 right-0 font-mono text-[9px] text-[#003d21] bg-[#aafdc0] px-1 py-0.5 rounded-[4px] border border-[#003d21]/30">
                 {watermarkRegion.width}×{watermarkRegion.height}
               </span>
             </div>
@@ -255,35 +248,32 @@ export function ComparisonSlider({
               className="absolute top-0 bottom-0 pointer-events-none"
               style={{ left: `${sliderPos}%` }}
             >
-              {/* Luminous divider rule */}
-              <div className="absolute top-0 bottom-0 -left-[1px] w-[2px] bg-gradient-to-b from-indigo-400 via-white to-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.8)]" />
+              {/* Divider vertical rule: 2px solid white */}
+              <div className="absolute top-0 bottom-0 -left-[1px] w-[2px] bg-[#ffffff]" />
 
-              {/* High-end metallic floating handle */}
-              <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-white to-slate-200 text-slate-900 shadow-[0_0_20px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.4)] border border-white/60 pointer-events-auto cursor-ew-resize hover:scale-115 active:scale-95 transition-all">
-                <SplitSquareVertical className="h-4 w-4" />
+              {/* Floating handle: 30px circular with black border and white fill */}
+              <div className="absolute top-1/2 -left-3.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-[#ffffff] text-[#000000] border-[1.5px] border-[#000000] pointer-events-auto cursor-ew-resize hover:scale-110 active:scale-95 transition-transform">
+                <SplitSquareVertical className="h-3.5 w-3.5" />
               </div>
             </div>
           )}
         </div>
 
-        {/* Labels: Before & After Chips */}
+        {/* Labels: Before & After Pill Badges */}
         {!isPeekingOriginal && (
           <>
-            <div className="absolute top-4 left-4 pointer-events-none flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#0c0e15]/80 px-3 py-1 font-mono text-[10px] font-semibold text-slate-300 backdrop-blur-md shadow-lg">
-              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+            <div className="absolute top-4 left-4 pointer-events-none rounded-full bg-[#202020] text-[#f8f9eb] border-[1.5px] border-[#c0c2a9] px-3 py-1 font-mono text-[10px] tracking-wider uppercase">
               ORIGINAL
             </div>
-            <div className="absolute top-4 right-4 pointer-events-none flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-950/70 px-3 py-1 font-mono text-[10px] font-semibold text-indigo-200 backdrop-blur-md shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+            <div className="absolute top-4 right-4 pointer-events-none rounded-full bg-[#aafdc0] text-[#003d21] border-[1.5px] border-[#003d21]/30 px-3 py-1 font-mono text-[10px] tracking-wider uppercase font-semibold">
               RESTORED
             </div>
           </>
         )}
 
         {isPeekingOriginal && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/95 px-4 py-1.5 font-mono text-xs font-bold text-black shadow-[0_0_30px_rgba(245,158,11,0.5)]">
-            <Eye className="h-3.5 w-3.5" />
-            <span>PEEKING ORIGINAL (HOLD SPACE / V)</span>
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none rounded-full bg-[#ffc0e6] text-[#3f0929] border-[1.5px] border-[#3f0929]/40 px-4 py-1 font-mono text-xs font-semibold tracking-wider uppercase">
+            PEEKING ORIGINAL (V / SPACE)
           </div>
         )}
       </div>

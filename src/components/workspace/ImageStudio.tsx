@@ -239,22 +239,22 @@ export function ImageStudio() {
       ) : (
         <div className="flex flex-col gap-6">
           {/* Top Actions & Telemetry Strip */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b-[1.5px] border-[#c0c2a9] pb-4">
             <TelemetryBadge result={activeResult} dimensions={dimensions} />
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowTuning((s) => !s)}
-                className={`btn-press text-xs gap-1.5 h-8 font-medium transition-all ${
+                className={`text-xs gap-1.5 h-8 font-mono border-[1.5px] ${
                   showTuning
-                    ? "bg-indigo-500/15 text-indigo-300 border-indigo-500/50 shadow-sm"
-                    : "border-white/[0.08] hover:bg-white/[0.04]"
+                    ? "bg-[#aafdc0] text-[#003d21] border-[#000000]"
+                    : "border-[#c0c2a9] bg-[#ffffff] text-[#202020] hover:border-[#000000]"
                 }`}
               >
-                <Sliders className="h-3.5 w-3.5 text-indigo-400" />
-                <span>Tuning &amp; Profile</span>
+                <Sliders className="h-3.5 w-3.5" />
+                <span>Tuning & Profile</span>
               </Button>
 
               <Button
@@ -262,9 +262,9 @@ export function ImageStudio() {
                 size="sm"
                 onClick={reprocessActiveItem}
                 disabled={isProcessing}
-                className="btn-press text-xs gap-1.5 h-8 border-white/[0.08] hover:bg-white/[0.04] font-medium"
+                className="text-xs gap-1.5 h-8 font-mono border-[1.5px] border-[#c0c2a9] bg-[#ffffff] text-[#202020] hover:border-[#000000]"
               >
-                <RefreshCw className={`h-3.5 w-3.5 ${isProcessing ? "animate-spin text-indigo-400" : ""}`} />
+                <RefreshCw className={`h-3.5 w-3.5 ${isProcessing ? "animate-spin" : ""}`} />
                 <span>Re-run</span>
               </Button>
 
@@ -273,7 +273,7 @@ export function ImageStudio() {
                 size="sm"
                 onClick={downloadActive}
                 disabled={!activeItem?.cleanedUrl}
-                className="btn-press text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-[0_0_20px_rgba(99,102,241,0.25)] font-semibold px-3.5"
+                className="text-xs bg-[#202020] hover:bg-[#2e2e2e] text-[#ffffff] gap-1.5 h-8 rounded-[13px] font-mono"
               >
                 <Download className="h-3.5 w-3.5" />
                 <span>Download Clean PNG</span>

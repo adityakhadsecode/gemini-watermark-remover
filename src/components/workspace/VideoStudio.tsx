@@ -275,36 +275,36 @@ export function VideoStudio() {
       ) : (
         <div className="flex flex-col gap-6">
           {/* Top Actions & Telemetry Strip */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="font-mono text-xs border-indigo-500/30 text-indigo-400 bg-indigo-500/10">
-                Veo Video Batch
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b-[1.5px] border-[#c0c2a9] pb-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="outline" className="font-mono text-xs border-[1.5px] border-[#c0c2a9] text-[#202020] bg-[#edeee1]">
+                VEO VIDEO BATCH
               </Badge>
               {activeItem && (
-                <span className="font-mono text-xs text-foreground truncate max-w-xs">
-                  Active: {activeItem.name}
+                <span className="font-mono text-xs text-[#000000] font-bold truncate max-w-xs">
+                  {activeItem.name}
                 </span>
               )}
               {activeFrame && (
-                <span className="font-mono text-[11px] text-muted-foreground">
+                <Badge variant="outline" className="font-mono text-[11px] border-[1.5px] border-[#c0c2a9] bg-[#ffffff] text-[#5a5a4f]">
                   {activeFrame.width}×{activeFrame.height}
-                </span>
+                </Badge>
               )}
               {activeItem?.status === "completed" && (
-                <Badge variant="outline" className="font-mono text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                <Badge variant="outline" className="font-mono text-[11px] border-[1.5px] border-[#003d21]/30 bg-[#aafdc0] text-[#003d21] font-semibold">
                   <CheckCircle2 className="h-3 w-3 mr-1 inline" />
                   Cleaned
                 </Badge>
               )}
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleClearAll}
                 disabled={isProcessing}
-                className="btn-press text-xs h-8 border-white/[0.08] hover:bg-white/[0.04]"
+                className="text-xs h-8 font-mono border-[1.5px] border-[#c0c2a9] text-[#5a5a4f] hover:border-[#000000] hover:text-[#000000]"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
                 Reset All
@@ -315,7 +315,7 @@ export function VideoStudio() {
                 size="sm"
                 onClick={handleProcessAll}
                 disabled={isProcessing || items.every((i) => i.status === "completed")}
-                className="btn-press text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-[0_0_20px_rgba(99,102,241,0.25)] font-semibold px-3.5"
+                className="text-xs bg-[#202020] hover:bg-[#2e2e2e] text-[#ffffff] gap-1.5 h-8 rounded-[13px] font-mono"
               >
                 {isProcessing ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -330,10 +330,10 @@ export function VideoStudio() {
                   variant="outline"
                   size="sm"
                   onClick={downloadActiveCleanVideo}
-                  className="btn-press text-xs text-emerald-300 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1.5 h-8 font-semibold px-3 shadow-sm"
+                  className="text-xs text-[#003d21] bg-[#aafdc0] border-[1.5px] border-[#000000] hover:bg-[#97f0af] gap-1.5 h-8 font-mono rounded-[9px]"
                 >
                   <Download className="h-3.5 w-3.5" />
-                  <span>Download Active MP4</span>
+                  <span>Download MP4</span>
                 </Button>
               )}
             </div>
@@ -341,15 +341,20 @@ export function VideoStudio() {
 
           {/* Progress / Status banner during processing */}
           {isProcessing && globalProgress && (
-            <div className="flex flex-col gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/[0.05] p-4 text-xs font-mono">
-              <div className="flex items-center justify-between text-indigo-300">
+            <div className="flex flex-col gap-2 rounded-[13px] border-[1.5px] border-[#000000] bg-[#aafdc0]/20 p-4 text-xs font-mono">
+              <div className="flex items-center justify-between text-[#003d21] font-bold">
                 <span className="flex items-center gap-2">
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                   {globalProgress.message}
                 </span>
                 <span>{globalProgress.percent}%</span>
               </div>
-              <Progress value={globalProgress.percent} className="h-2 bg-muted/40" />
+              <div className="w-full bg-[#edeee1] rounded-full h-2 border border-[#c0c2a9] overflow-hidden">
+                <div
+                  className="bg-[#202020] h-full transition-all duration-300"
+                  style={{ width: `${globalProgress.percent}%` }}
+                />
+              </div>
             </div>
           )}
 
@@ -362,8 +367,8 @@ export function VideoStudio() {
 
           {/* If active item has finished processing, show video player comparison */}
           {activeItem?.status === "completed" && activeItem.cleanedUrl && (
-            <div className="relative flex flex-col rounded-xl border border-white/[0.08] bg-card overflow-hidden shadow-2xl">
-              <div className="relative flex h-[480px] w-full items-center justify-center bg-black">
+            <div className="relative flex flex-col rounded-[22px] border-[1.5px] border-[#000000] bg-[#ffffff] overflow-hidden">
+              <div className="relative flex h-[480px] w-full items-center justify-center bg-[#202020]">
                 <video
                   ref={videoRef}
                   src={showOriginal ? activeItem.originalUrl : activeItem.cleanedUrl}
@@ -375,19 +380,19 @@ export function VideoStudio() {
                 />
 
                 {/* Overlay Label */}
-                <div className="absolute top-4 left-4 rounded bg-black/70 px-2.5 py-1 font-mono text-[11px] text-white/90 border border-white/10 backdrop-blur-sm">
+                <div className="absolute top-4 left-4 rounded-full bg-[#202020] text-[#f8f9eb] border-[1.5px] border-[#c0c2a9] px-3.5 py-1 font-mono text-[10px] tracking-wider uppercase">
                   {showOriginal ? "ORIGINAL (WATERMARKED)" : "CLEANED (WATERMARK REMOVED)"}
                 </div>
               </div>
 
               {/* Video Controls Bar */}
-              <div className="flex flex-col gap-2 border-t border-white/[0.08] bg-muted/20 p-3">
+              <div className="flex flex-col gap-2 border-t-[1.5px] border-[#c0c2a9] bg-[#edeee1] p-3.5">
                 <div className="flex items-center gap-3">
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="icon-xs"
                     onClick={togglePlay}
-                    className="text-foreground"
+                    className="text-[#000000] bg-[#ffffff]"
                   >
                     {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                   </Button>
@@ -399,10 +404,10 @@ export function VideoStudio() {
                     step={0.01}
                     value={currentTime}
                     onChange={handleSeek}
-                    className="w-full h-1.5 accent-indigo-500 cursor-pointer bg-muted/40 rounded"
+                    className="w-full h-2 accent-[#202020] cursor-pointer bg-[#ffffff] rounded-full border border-[#c0c2a9]"
                   />
 
-                  <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                  <span className="font-mono text-xs text-[#5a5a4f] whitespace-nowrap">
                     {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
                   </span>
 
@@ -410,7 +415,7 @@ export function VideoStudio() {
                     variant={showOriginal ? "default" : "outline"}
                     size="xs"
                     onClick={() => setShowOriginal((v) => !v)}
-                    className="text-[11px] h-6 whitespace-nowrap"
+                    className="text-xs h-7 whitespace-nowrap font-mono rounded-[9px]"
                   >
                     {showOriginal ? "Viewing Original" : "Compare Original"}
                   </Button>
