@@ -26,7 +26,7 @@ Split an implementation step if:
 
 ## Handling Missing Requirements
 
-- Never guess or approximate the reverse alpha blending equations — refer directly to the reference implementations (`GeminiWatermarkTool` and `VeoWatermarkRemover`).
+- Never guess or approximate the reverse alpha blending equations — calculate mathematically exact values.
 - If a watermark variant (e.g. a new resolution or aspect ratio) has unknown offsets, log the candidate coordinates as an open question in `docs/progress-tracker.md` and provide a manual region override escape hatch.
 
 ---
@@ -34,7 +34,7 @@ Split an implementation step if:
 ## Protected Files
 
 - `docs/*`: Must only be updated to document verified architectural decisions or progress tracking.
-- Reference assets / masks: Must match the calibrated bitmaps from `allenk/GeminiWatermarkTool`.
+- Reference assets / masks: Must match the calibrated bitmaps.
 
 ---
 

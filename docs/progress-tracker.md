@@ -14,11 +14,11 @@
 
 ## Completed
 
-- [x] Analyzed `allenk/GeminiWatermarkTool` C++ codebase:
+- [x] Analyzed image watermark specifications:
   - Calibrated alpha masks for V1 (legacy) and V2 (Gemini 3.5+).
   - Reverse alpha blending formula: `Original = clamp((Watermarked - alpha * 255) / (1 - alpha), 0, 255)`.
   - Aspect-ratio-aware coordinate calculations and half-scale free-tier support.
-- [x] Analyzed `allenk/VeoWatermarkRemover`:
+- [x] Analyzed video watermark specifications:
   - 1080p landscape/portrait and 720p standard (48×48) / compact (44×44) diamond variants.
   - Flow "Veo" wordmark removal.
   - Multi-frame probe logic and adaptive bisection loop with ±0.05 per-frame change cap.

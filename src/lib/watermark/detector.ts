@@ -1,6 +1,5 @@
 /**
  * Three-Stage Normalized Cross-Correlation (NCC) Watermark Detector.
- * Direct port of allenk/GeminiWatermarkTool (src/core/watermark_engine.cpp).
  *
  * Stage 1: Spatial NCC (Diamond/star structural pattern)
  * Stage 2: Gradient NCC (Sobel edge signature)

@@ -3,7 +3,7 @@
 ## General Principles
 
 - **Separation of Concerns**: Algorithmic math kernels (`src/lib/watermark/`), video processing pipes (`src/lib/video/`), and React presentation components (`src/components/`) must remain strictly isolated. No React state or JSX inside the core mathematical modules.
-- **Root-Cause Accuracy**: Reverse alpha blending is mathematically exact. Calibrated masks and bisection parameters must align with the reference implementations (`GeminiWatermarkTool` and `VeoWatermarkRemover`).
+- **Root-Cause Accuracy**: Reverse alpha blending is mathematically exact. Calibrated masks and bisection parameters must align with reverse alpha blending specifications.
 - **Memory Hygiene**: Video frames and large image buffers occupy substantial RAM. Always revoke Object URLs (`URL.revokeObjectURL`) when discarded, explicitly close `VideoFrame` instances in WebCodecs, and terminate idle Web Workers.
 
 ---

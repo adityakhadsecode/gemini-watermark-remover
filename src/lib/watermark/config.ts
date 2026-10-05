@@ -1,6 +1,5 @@
 /**
  * Watermark position & geometry configuration.
- * Direct port of allenk/GeminiWatermarkTool (src/core/watermark_engine.cpp).
  */
 
 import type { Rect, WatermarkPosition, WatermarkSize, WatermarkVariant } from "./types";

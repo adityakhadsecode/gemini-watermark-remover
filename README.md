@@ -77,9 +77,8 @@ npm run start
 
 ## 📚 Acknowledgments & References
 
-- [allenk/GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool): Canonical reverse alpha blending methodology, 3-stage NCC detection, and calibrated alpha masks.
-- [allenk/VeoWatermarkRemover](https://github.com/allenk/VeoWatermarkRemover): Video watermark removal and temporal bisection concepts.
-- [dearabhin/gemini-watermark-remover](https://github.com/dearabhin/gemini-watermark-remover): Veo dynamic watermark geometry formulas and live tuner inspiration.
+- Mathematical reverse alpha blending equations and calibrated alpha channel matrices.
+- Hardware WebCodecs decoding and encoding pipeline with lossless audio passthrough.
 
 ---
 

@@ -39,15 +39,7 @@ export default function Home() {
 
           <div className="flex items-center gap-4 text-[11px]">
             <span>
-              Reverse engineering & alpha masks derived from{" "}
-              <a
-                href="https://github.com/allenk/GeminiWatermarkTool"
-                target="_blank"
-                rel="noreferrer"
-                className="underline hover:text-foreground transition-colors"
-              >
-                allenk
-              </a>
+              100% In-Browser Execution &bull; Zero Server Uploads &bull; Private & Secure
             </span>
           </div>
         </div>

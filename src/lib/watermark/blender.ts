@@ -4,8 +4,6 @@
  *
  *   Watermarked = alpha * Logo + (1 - alpha) * Original
  *   Original    = (Watermarked - alpha * Logo) / (1 - alpha)
- *
- * Direct port of allenk/GeminiWatermarkTool (src/core/blend_modes.cpp).
  */
 
 import type { FloatMat, Rect } from "./types";

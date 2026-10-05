@@ -1,6 +1,5 @@
 /**
  * Core domain types for the image watermark engine.
- * Ported from allenk/GeminiWatermarkTool src/core/watermark_engine.hpp.
  */
 
 /** Single-channel float matrix (equivalent of cv::Mat CV_32FC1). */

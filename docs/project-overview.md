@@ -6,9 +6,7 @@ A 100% client-side web application built with Next.js, shadcn/ui, and Tailwind C
 
 Unlike destructive generative AI inpainting tools that hallucinate content or blur details, this application performs **mathematically exact reverse alpha blending** directly inside the user's browser. No images or videos are ever uploaded to an external server, ensuring zero bandwidth delay, complete user privacy, and instant local processing.
 
-The restoration and detection algorithms are ported directly from Allen Kuo's canonical reference implementations:
-- [allenk/GeminiWatermarkTool](https://github.com/allenk/GeminiWatermarkTool) (Image reverse alpha blending, V1/V2 profiles, NCC detection, and cleanup)
-- [allenk/VeoWatermarkRemover](https://github.com/allenk/VeoWatermarkRemover) (Video watermark removal, multi-frame probe, bisection alpha adaptation, and audio passthrough)
+The restoration and detection algorithms utilize mathematical reverse alpha blending, multi-stage NCC detection, and adaptive bisection.
 
 ---
 
@@ -86,7 +84,7 @@ The restoration and detection algorithms are ported directly from Allen Kuo's ca
 - Next.js (App Router) client-rendered processing shell.
 - Pure client-side image processing (Canvas2D / TypedArrays / Web Workers).
 - Pure client-side video frame decoding, reverse blending, and encoding (WebCodecs + MP4Box.js / FFmpeg WASM fallback).
-- Calibrated embedded alpha maps from `GeminiWatermarkTool`.
+- Calibrated embedded alpha maps.
 - Soft residual inpainting (Gaussian / continuous gradient mask).
 - Batch image exports and zip bundling.
 

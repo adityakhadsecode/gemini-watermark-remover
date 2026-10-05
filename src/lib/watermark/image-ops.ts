@@ -1,6 +1,6 @@
 /**
- * Minimal, dependency-free re-implementations of the OpenCV primitives used
- * by GeminiWatermarkTool. Semantics follow OpenCV defaults:
+ * Minimal, dependency-free re-implementations of OpenCV primitives.
+ * Semantics follow OpenCV defaults:
  *  - BORDER_REFLECT_101 for Sobel / GaussianBlur
  *  - Half-pixel-centre mapping for INTER_LINEAR resize
  *  - Exact pixel-area weighting for INTER_AREA downscale

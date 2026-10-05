@@ -1,6 +1,5 @@
 /**
  * Gradient-weighted soft inpainting (Gaussian residual cleanup).
- * Direct port of allenk/GeminiWatermarkTool (src/core/watermark_engine.cpp).
  *
  * Repairs edge residuals from lossy compression or post-scaling by diffusing
  * only along high-frequency alpha gradient contours while keeping intact
