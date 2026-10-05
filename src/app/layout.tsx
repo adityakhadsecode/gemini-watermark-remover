@@ -3,6 +3,7 @@ import { Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
+import { AgentationWrapper } from "@/components/AgentationWrapper";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-display",
@@ -17,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gemini & Veo Watermark Remover | Precision Reverse Alpha Blending",
+  title: "Markless — Gemini & Veo Watermark Remover | Precision Reverse Alpha Blending",
   description:
     "100% client-side mathematically exact reverse alpha blending restoration for Google Gemini AI images and Veo videos. Zero cloud uploads, zero quality loss.",
 };
@@ -36,6 +37,7 @@ export default function RootLayout({
         <TooltipProvider delay={150}>
           {children}
           <Toaster richColors position="bottom-right" theme="light" closeButton />
+          <AgentationWrapper />
         </TooltipProvider>
       </body>
     </html>

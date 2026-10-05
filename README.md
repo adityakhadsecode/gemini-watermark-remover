@@ -1,4 +1,4 @@
-# Gemini & Veo Watermark Remover
+# Markless — Gemini & Veo Watermark Remover
 
 > **100% Client-Side In-Browser Media Restoration Tool**  
 > Mathematically precise reverse alpha blending to remove visible watermarks from Google Gemini AI images and Google Veo videos with zero cloud uploads, zero generative hallucinations, and lossless audio passthrough.
@@ -42,8 +42,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/adityakhadsecode/gemini-watermark-remover.git
-cd gemini-watermark-remover
+git clone https://github.com/adityakhadsecode/markless.git
+cd markless
 
 # Install dependencies
 npm install

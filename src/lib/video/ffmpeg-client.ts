@@ -4,6 +4,8 @@
  * directly to the classic static worker in /public/ffmpeg/ffmpeg-worker.js.
  */
 
+import { getAssetPath } from "@/lib/utils/asset-path";
+
 export interface LogMessage {
   type?: string;
   message: string;
@@ -40,7 +42,7 @@ export class FFmpegClient {
     if (this.loaded) return true;
 
     if (!this.worker) {
-      const workerUrl = "/ffmpeg/ffmpeg-worker.js";
+      const workerUrl = config.workerURL || getAssetPath("/ffmpeg/ffmpeg-worker.js");
       this.worker = new Worker(workerUrl);
 
       this.worker.onmessage = (e: MessageEvent) => {
@@ -81,8 +83,8 @@ export class FFmpegClient {
     }
 
     await this.send("LOAD", {
-      coreURL: config.coreURL || "/ffmpeg/ffmpeg-core.js",
-      wasmURL: config.wasmURL || "/ffmpeg/ffmpeg-core.wasm",
+      coreURL: config.coreURL || getAssetPath("/ffmpeg/ffmpeg-core.js"),
+      wasmURL: config.wasmURL || getAssetPath("/ffmpeg/ffmpeg-core.wasm"),
     });
 
     this.loaded = true;

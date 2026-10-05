@@ -49,8 +49,24 @@
   - Adopted `mediabunny` hardware-accelerated WebCodecs for rapid H.264 video frame decoding and encoding with lossless audio packet passthrough.
   - Implemented real-time interactive `VideoTuner` (`src/components/workspace/VideoTuner.tsx`) featuring dual canvas previews (full frame overview and 200×200 pixelated zoomed corner) with real-time sliders for Gain (strength), Size Scale, Offset X, and Offset Y, plus Veo and Corner position presets.
   - Provided instant live feedback so users verify that the watermark disappears in the corner preview before launching the full video export.
-- [x] **Phase 4: Workspace UI & Integration**:
-  - `src/components/workspace/Header.tsx`: Studio header with segmented mode switcher (`Image Studio` vs `Video Studio`).
+- [x] **Top Header Matched to Reference (`coda.com` design)**:
+  - Built floating charcoal (`#1e1e1e`) pill announcement bar with monospace uppercase text (`CODA HAS COMPLETED ITS ACQUISITION OF RECHARGE...`), `READ MORE →` action link, and right-aligned close `✕` button.
+  - Implemented monumental ultra-chunky `CODA` wordmark on the left (`font-weight: 900`, tracking `[-0.05em]`).
+  - Right-aligned navigation group with wide whitespace balance: `Products` (with interactive studio switcher dropdown), `Solutions`, `Knowledge Center`, and `Company`.
+  - Verified visual 1:1 match against the user's reference image via live Chrome DevTools screenshots. Build validated clean.
+- [x] **Agentation Visual Feedback & MCP Integration**:
+  - Installed `agentation` package (`npm install agentation -D`).
+  - Created client wrapper `src/components/AgentationWrapper.tsx` pointing to local Agentation MCP server on port `4747`.
+  - Mounted `<AgentationWrapper />` into `src/app/layout.tsx`.
+  - Confirmed active session registration with the Agentation MCP server via `agentation_list_sessions` and live floating UI toolbar in the browser.
+  - Validated production build with zero SSR or hydration warnings.
+- [x] **Agentation Feedback Round 1 Addressed**:
+  - Removed "Solutions" and "Company" navigation links from Header.
+  - Reimagined the Markless logo with an architectural sub-badge (`V2.0`) and subtitle (`Reverse Alpha Engine`).
+  - Replaced "Contact us" with direct "Submit Issue" link pointing to `https://github.com/adityakhadsecode/markless/issues/new`.
+  - Removed the inline flex status badge above the headline in `page.tsx`.
+  - Added a tactile, prominent segmented studio mode switcher (`[ Image Studio (Gemini) ] [ Video Studio (Veo) ]`) centered directly above the workspace dropzone.
+  - Replaced generic sparkles box in hero headline with a bespoke architectural `AbstractPolygonGlyph` SVG matching `DESIGN.md` (faceted rhombohedral prism with Mint Sprout, Sky Wash, Lilac Wash, and Rose Wash facet fills, 2.2px Obsidian outlines, and central alpha inversion star aperture).
   - `src/components/workspace/MediaDropzone.tsx`: Drag & drop, clipboard paste (`Ctrl+V`), and multi-file picker for both images and videos.
   - `src/components/workspace/ComparisonSlider.tsx`: Split-wipe comparison slider with zoom/pan, hold-to-peek (`V`/`Space`), and focus-watermark.
   - `src/components/workspace/TuningDrawer.tsx`: Sensitivity slider, profile selector, force removal toggle, and inpainting controls.
@@ -70,6 +86,24 @@
   - Added Pastel Surface Cards (`#aafdc0`, `#d3beff`, `#b0f4ff`, `#ffc0e6`) for modular feature highlights.
   - Refactored `MediaDropzone`, `ComparisonSlider`, `TuningDrawer`, `TelemetryBadge`, `BatchDrawer`, `VideoTuner`, `VideoBatchDrawer`, and `VideoStudio` to strict Coda design invariants.
   - Verified production build `npm run build` compiles with 0 errors in 1.6s.
+- [x] **Architectural Editorial Footer (`src/components/workspace/Footer.tsx`)**:
+  - Implemented Coda-styled architectural footer with 1.5px hairline grid borders and warm `#f8f9eb` palette.
+  - Pre-footer banner: "Restore Media Locally. Zero Cloud Uploads. Zero Artifacts." with direct actions ("Start Restoring", "Buy Me a Coffee").
+  - 4-column layout: Markless brand column, Studios column (interactive switching to Image Studio / Video Studio with smooth scroll), Architecture column (links to mathematical docs), and Project column (GitHub repo, issue tracker, Buy Me a Coffee).
+  - Telemetry badges strip: 100% In-Browser Execution, WebCodecs Hardware Accelerated, Lossless Audio Passthrough.
+  - Bottom bar: "Crafted with ❤️ by Aditya Khadse" and smooth "BACK TO TOP ↑" scroll trigger.
+  - Resolved Agentation visual feedback: removed status pill under footer brand column, finalized clean hero typography "REMOVE WATERMARKS. NO BLUR NO ARTIFACTS".
+  - Production build tested and verified error-free.
+- [x] **Project Rebrand to Markless**:
+  - Renamed GitHub repository to `adityakhadsecode/markless` via `gh repo rename`.
+  - Updated Git remote origin to `https://github.com/adityakhadsecode/markless.git`.
+  - Rebranded UI wordmark, hero badge, metadata title, and package configuration to **Markless**.
+- [x] **GitHub Pages Static Deployment Setup**:
+  - Configured Next.js static export (`output: 'export'`) with production `basePath: '/markless'` and unoptimized images.
+  - Implemented `getAssetPath` helper for static assets (`/assets/bg_96.png`, `/ffmpeg/...`, logo navigation).
+  - Created `.github/workflows/deploy.yml` for automated GitHub Actions build and deploy to GitHub Pages.
+  - Enabled GitHub Pages on `adityakhadsecode/markless` via GitHub API.
+  - Public live URL: `https://adityakhadsecode.github.io/markless/`.
 
 ---
 

@@ -4,17 +4,19 @@ import React, { useState } from "react";
 import { Header, type StudioMode } from "@/components/workspace/Header";
 import { ImageStudio } from "@/components/workspace/ImageStudio";
 import { VideoStudio } from "@/components/workspace/VideoStudio";
+import { Footer } from "@/components/workspace/Footer";
 import { Badge } from "@/components/ui/badge";
 import {
   ShieldCheck,
   Cpu,
   Layers,
-  Sparkles,
   ArrowRight,
   Code2,
   CheckCircle2,
   Sliders,
   Zap,
+  Image as ImageIcon,
+  Video,
 } from "lucide-react";
 
 export default function Home() {
@@ -22,26 +24,17 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f8f9eb] text-[#000000] font-sans selection:bg-[#aafdc0] selection:text-[#003d21]">
-      {/* Top Header with Coda Announcement Bar & Navigation */}
+      {/* Top Header with Markless Announcement Bar & Navigation */}
       <Header mode={mode} onModeChange={setMode} />
 
       {/* Hero Section: Centered on Cream Parchment (#f8f9eb) */}
-      <section className="w-full pt-14 pb-10 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col items-center text-center">
-        {/* Coda Pill Status Badge: Full 9999px radius, 1.5px Sage Mist border, JetBrains Mono 12px uppercase in #202020 */}
-        <div className="inline-flex items-center gap-2 rounded-full border-[1.5px] border-[#c0c2a9] bg-transparent px-4 py-1.5 font-mono text-xs uppercase tracking-widest text-[#202020] mb-6">
-          <span className="h-2 w-2 rounded-full bg-[#003d21] animate-pulse" />
-          <span>REVERSE ALPHA RESTORATION // ZERO SERVER UPLOADS</span>
-        </div>
-
+      <section className="w-full pt-16 pb-8 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col items-center text-center">
         {/* Monumental Display Headline: Space Grotesk 800, tight line-height 0.92, -0.01em tracking */}
         <h1 className="text-5xl sm:text-7xl md:text-8xl font-extrabold tracking-tight text-[#000000] leading-[0.92] uppercase font-sans max-w-4xl">
-          INVERT WATERMARKS.
+          REMOVE WATERMARKS.
           <span className="block mt-2 text-[#202020]">
             NO BLUR
-            <span className="inline-flex items-center justify-center align-middle mx-3 h-10 w-10 sm:h-14 sm:w-14 rounded-[13px] border-[2px] border-[#000000] bg-[#aafdc0] text-[#000000]">
-              <Sparkles className="h-5 w-5 sm:h-7 sm:w-7" />
-            </span>
-            NO ARTIFACTS.
+            NO ARTIFACTS
           </span>
         </h1>
 
@@ -52,13 +45,62 @@ export default function Home() {
         </p>
       </section>
 
+      {/* Tactile Studio Mode Selector: Image Studio vs Video Studio */}
+      <div id="workspace" className="w-full max-w-5xl mx-auto px-4 sm:px-6 mb-6 flex justify-center">
+        <div className="inline-flex p-1.5 rounded-[16px] border-[1.5px] border-[#c0c2a9] bg-[#ffffff] gap-1.5">
+          <button
+            type="button"
+            onClick={() => setMode("image")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-[11px] font-sans text-sm font-semibold transition-all cursor-pointer ${
+              mode === "image"
+                ? "bg-[#202020] text-[#ffffff]"
+                : "text-[#5a5a4f] hover:text-[#000000] hover:bg-[#edeee1]"
+            }`}
+          >
+            <ImageIcon className="h-4 w-4" />
+            <span>Image Studio</span>
+            <span
+              className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase ${
+                mode === "image"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#edeee1] text-[#5a5a4f]"
+              }`}
+            >
+              Gemini
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMode("video")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-[11px] font-sans text-sm font-semibold transition-all cursor-pointer ${
+              mode === "video"
+                ? "bg-[#202020] text-[#ffffff]"
+                : "text-[#5a5a4f] hover:text-[#000000] hover:bg-[#edeee1]"
+            }`}
+          >
+            <Video className="h-4 w-4" />
+            <span>Video Studio</span>
+            <span
+              className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold uppercase ${
+                mode === "video"
+                  ? "bg-white/20 text-white"
+                  : "bg-[#edeee1] text-[#5a5a4f]"
+              }`}
+            >
+              Veo
+            </span>
+          </button>
+        </div>
+      </div>
+
       {/* Main Studio Viewport */}
       <main className="flex-1 w-full pb-16">
         {mode === "image" ? <ImageStudio /> : <VideoStudio />}
       </main>
 
       {/* Signature Full-Bleed Forest Section: Forest Depths (#003d21) with ~45px top corner radius */}
-      <section className="w-full bg-[#003d21] text-[#ffffff] rounded-t-[45px] pt-16 pb-20 px-6 sm:px-12 mt-12 overflow-hidden relative">
+      <section id="approach" className="w-full bg-[#003d21] text-[#ffffff] rounded-t-[45px] pt-16 pb-20 px-6 sm:px-12 mt-12 overflow-hidden relative">
         {/* Organic 3D blob cluster decoration in Mint Sprout (#aafdc0) at 10-20% opacity */}
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#aafdc0] opacity-10 blur-3xl pointer-events-none -mr-20 -mt-20" />
         <div className="absolute bottom-0 left-1/3 w-80 h-80 rounded-full bg-[#aafdc0] opacity-10 blur-2xl pointer-events-none" />
@@ -205,29 +247,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Coda Editorial Footer: Cream Parchment canvas with Hairline Sage Mist divider */}
-      <footer className="w-full border-t-[1.5px] border-[#c0c2a9] bg-[#f8f9eb] py-8 text-xs text-[#5a5a4f]">
-        <div className="mx-auto flex max-w-6xl flex-col sm:flex-row items-center justify-between gap-4 px-6">
-          <div className="flex flex-wrap items-center gap-6 font-mono text-[11px]">
-            <span className="flex items-center gap-1.5 text-[#000000]">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#003d21]" />
-              100% In-Browser Execution
-            </span>
-            <span className="flex items-center gap-1.5 text-[#000000]">
-              <Cpu className="h-3.5 w-3.5 text-[#000000]" />
-              WebCodecs Hardware Accelerated
-            </span>
-            <span className="flex items-center gap-1.5 text-[#000000]">
-              <Layers className="h-3.5 w-3.5 text-[#000000]" />
-              Lossless Audio Passthrough
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 font-mono text-[11px] text-[#5a5a4f]">
-            <span>CODA DESIGN SYSTEM &bull; CLIENT-SIDE PRIVATE</span>
-          </div>
-        </div>
-      </footer>
+      {/* Markless Architectural Editorial Footer */}
+      <Footer onSelectStudio={setMode} />
     </div>
   );
 }

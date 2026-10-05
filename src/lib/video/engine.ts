@@ -7,6 +7,7 @@
 
 import type { VideoProcessingOptions, VideoProcessResult, VideoProgress, VideoTunerSettings } from "./types";
 import { getVeoWatermark, resolveBox, getRoi, buildAlpha, removeWatermark, VIDEO_DEFAULTS } from "./config";
+import { getAssetPath } from "@/lib/utils/asset-path";
 
 let bgSparkle: HTMLImageElement | null = null;
 
@@ -22,7 +23,7 @@ export async function getSparkleImage(): Promise<HTMLImageElement> {
       resolve(img);
     };
     img.onerror = () => reject(new Error("Failed to load /assets/bg_96.png watermark template"));
-    img.src = "/assets/bg_96.png";
+    img.src = getAssetPath("/assets/bg_96.png");
   });
 }
 
