@@ -8,7 +8,6 @@ import {
   SplitSquareVertical,
   Eye,
   SlidersHorizontal,
-  RefreshCw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,9 +26,6 @@ export function ComparisonSlider({
   originalUrl,
   cleanedUrl,
   watermarkRegion,
-  manualRegion,
-  onManualRegionChange,
-  isManualMode = false,
 }: ComparisonSliderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [sliderPos, setSliderPos] = useState(50); // percentage 0..100
@@ -72,7 +68,6 @@ export function ComparisonSlider({
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent) => {
-    // If clicking directly on or near the slider handle
     setIsDragging(true);
     handleSliderMove(e.clientX);
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
@@ -113,7 +108,6 @@ export function ComparisonSlider({
     setSliderPos(50);
   };
 
-  // Jump zoom directly to the watermark region for close inspection
   const focusWatermark = () => {
     if (!watermarkRegion) return;
     setZoom(2.5);
@@ -121,18 +115,19 @@ export function ComparisonSlider({
   };
 
   return (
-    <div className="relative flex flex-col w-full rounded-xl border border-white/[0.08] bg-card overflow-hidden shadow-2xl">
+    <div className="relative flex flex-col w-full rounded-2xl border border-white/[0.08] bg-[#0c0e15] overflow-hidden shadow-2xl">
       {/* Top Studio Control Bar */}
-      <div className="flex h-11 items-center justify-between border-b border-white/[0.08] bg-muted/20 px-3 text-xs">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="font-mono text-[10px] text-muted-foreground border-white/[0.08]">
+      <div className="flex h-12 items-center justify-between border-b border-white/[0.07] bg-[#0f121a]/90 backdrop-blur-md px-4 text-xs">
+        <div className="flex items-center gap-2.5">
+          <Badge variant="outline" className="font-mono text-[11px] font-medium text-slate-300 border-white/[0.1] bg-white/[0.02] px-2 py-0.5">
             {Math.round(zoom * 100)}%
           </Badge>
-          <div className="flex items-center gap-1 border-l border-white/[0.08] pl-2">
+          <div className="flex items-center gap-1 border-l border-white/[0.08] pl-2.5">
             <Button
               variant="ghost"
               size="icon-xs"
               onClick={() => setZoom((z) => Math.min(5, z + 0.25))}
+              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Zoom In"
             >
               <ZoomIn className="h-3.5 w-3.5" />
@@ -141,6 +136,7 @@ export function ComparisonSlider({
               variant="ghost"
               size="icon-xs"
               onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
+              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Zoom Out"
             >
               <ZoomOut className="h-3.5 w-3.5" />
@@ -149,6 +145,7 @@ export function ComparisonSlider({
               variant="ghost"
               size="icon-xs"
               onClick={resetView}
+              className="text-slate-400 hover:text-white hover:bg-white/[0.05]"
               title="Reset View"
             >
               <Maximize2 className="h-3.5 w-3.5" />
@@ -160,9 +157,9 @@ export function ComparisonSlider({
               variant="outline"
               size="xs"
               onClick={focusWatermark}
-              className="text-[11px] font-mono h-6 border-indigo-500/30 text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20"
+              className="btn-press text-[11px] font-mono h-7 border-indigo-500/30 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 hover:border-indigo-500/50"
             >
-              <SlidersHorizontal className="h-3 w-3 mr-1" />
+              <SlidersHorizontal className="h-3 w-3 mr-1.5 text-indigo-400" />
               Focus Watermark
             </Button>
           )}
@@ -177,12 +174,16 @@ export function ComparisonSlider({
             onMouseUp={() => setIsPeekingOriginal(false)}
             onTouchStart={() => setIsPeekingOriginal(true)}
             onTouchEnd={() => setIsPeekingOriginal(false)}
-            className="text-[11px] h-6 gap-1"
+            className={`btn-press text-[11px] h-7 gap-1.5 font-medium transition-all ${
+              isPeekingOriginal
+                ? "bg-amber-500 hover:bg-amber-400 text-black font-semibold shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+                : "bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 border border-white/[0.08]"
+            }`}
           >
             <Eye className="h-3 w-3" />
             <span>Hold to Peek Original</span>
-            <kbd className="hidden sm:inline-block rounded bg-muted/60 px-1 text-[9px] font-mono text-muted-foreground">
-              V
+            <kbd className="hidden sm:inline-block rounded border border-white/10 bg-black/40 px-1.5 py-0.5 text-[9px] font-mono text-slate-300 shadow-inner">
+              Space
             </kbd>
           </Button>
         </div>
@@ -195,8 +196,11 @@ export function ComparisonSlider({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="relative flex h-[540px] w-full select-none items-center justify-center overflow-hidden bg-black/60 cursor-crosshair"
+        className="relative flex h-[560px] w-full select-none items-center justify-center overflow-hidden bg-[#07080c] cursor-crosshair"
       >
+        {/* Subtle grid background */}
+        <div className="pointer-events-none absolute inset-0 bg-grid-dots opacity-40" />
+
         <div
           className="relative max-h-full max-w-full transition-transform duration-75"
           style={{
@@ -207,7 +211,7 @@ export function ComparisonSlider({
           <img
             src={cleanedUrl}
             alt="Cleaned preview"
-            className="max-h-[500px] w-auto max-w-full object-contain pointer-events-none rounded"
+            className="max-h-[500px] w-auto max-w-full object-contain pointer-events-none rounded shadow-2xl"
             draggable={false}
           />
 
@@ -228,10 +232,10 @@ export function ComparisonSlider({
             />
           </div>
 
-          {/* Watermark Region Outline (Subtle bounding box indicator) */}
+          {/* Watermark Region Outline */}
           {watermarkRegion && (
             <div
-              className="absolute border border-indigo-400/60 bg-indigo-500/10 pointer-events-none rounded-sm transition-all"
+              className="absolute border border-indigo-400/70 bg-indigo-500/10 pointer-events-none rounded-sm transition-all shadow-[0_0_12px_rgba(99,102,241,0.25)]"
               style={{
                 left: `${watermarkRegion.x}px`,
                 top: `${watermarkRegion.y}px`,
@@ -239,7 +243,7 @@ export function ComparisonSlider({
                 height: `${watermarkRegion.height}px`,
               }}
             >
-              <span className="absolute -top-4 right-0 font-mono text-[9px] text-indigo-400 bg-background/80 px-1 rounded border border-indigo-500/30">
+              <span className="absolute -top-5 right-0 font-mono text-[9px] font-semibold text-indigo-300 bg-[#0c0e15]/90 px-1.5 py-0.5 rounded border border-indigo-500/30 shadow-md">
                 {watermarkRegion.width}×{watermarkRegion.height}
               </span>
             </div>
@@ -251,32 +255,35 @@ export function ComparisonSlider({
               className="absolute top-0 bottom-0 pointer-events-none"
               style={{ left: `${sliderPos}%` }}
             >
-              {/* Divider vertical rule */}
-              <div className="absolute top-0 bottom-0 -left-[1px] w-[2px] bg-white shadow-[0_0_10px_rgba(255,255,255,0.7)]" />
+              {/* Luminous divider rule */}
+              <div className="absolute top-0 bottom-0 -left-[1px] w-[2px] bg-gradient-to-b from-indigo-400 via-white to-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.8)]" />
 
-              {/* Floating handle */}
-              <div className="absolute top-1/2 -left-3.5 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full bg-white text-zinc-900 shadow-xl border border-zinc-200 pointer-events-auto cursor-ew-resize hover:scale-110 active:scale-95 transition-transform">
-                <SplitSquareVertical className="h-3.5 w-3.5" />
+              {/* High-end metallic floating handle */}
+              <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-b from-white to-slate-200 text-slate-900 shadow-[0_0_20px_rgba(0,0,0,0.6),0_0_10px_rgba(255,255,255,0.4)] border border-white/60 pointer-events-auto cursor-ew-resize hover:scale-115 active:scale-95 transition-all">
+                <SplitSquareVertical className="h-4 w-4" />
               </div>
             </div>
           )}
         </div>
 
-        {/* Labels: Before & After */}
+        {/* Labels: Before & After Chips */}
         {!isPeekingOriginal && (
           <>
-            <div className="absolute top-4 left-4 pointer-events-none rounded bg-black/70 px-2 py-0.5 font-mono text-[10px] text-white/90 border border-white/10 backdrop-blur-sm">
+            <div className="absolute top-4 left-4 pointer-events-none flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-[#0c0e15]/80 px-3 py-1 font-mono text-[10px] font-semibold text-slate-300 backdrop-blur-md shadow-lg">
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
               ORIGINAL
             </div>
-            <div className="absolute top-4 right-4 pointer-events-none rounded bg-indigo-500/80 px-2 py-0.5 font-mono text-[10px] text-white border border-indigo-400/40 backdrop-blur-sm shadow-sm">
+            <div className="absolute top-4 right-4 pointer-events-none flex items-center gap-1.5 rounded-lg border border-indigo-500/30 bg-indigo-950/70 px-3 py-1 font-mono text-[10px] font-semibold text-indigo-200 backdrop-blur-md shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
               RESTORED
             </div>
           </>
         )}
 
         {isPeekingOriginal && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none rounded bg-amber-500/90 px-3 py-1 font-mono text-xs font-semibold text-black shadow-lg">
-            PEEKING ORIGINAL (V / SPACE)
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-none flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/95 px-4 py-1.5 font-mono text-xs font-bold text-black shadow-[0_0_30px_rgba(245,158,11,0.5)]">
+            <Eye className="h-3.5 w-3.5" />
+            <span>PEEKING ORIGINAL (HOLD SPACE / V)</span>
           </div>
         )}
       </div>

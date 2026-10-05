@@ -298,13 +298,13 @@ export function VideoStudio() {
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleClearAll}
                 disabled={isProcessing}
-                className="text-xs h-8"
+                className="btn-press text-xs h-8 border-white/[0.08] hover:bg-white/[0.04]"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
                 Reset All
@@ -315,7 +315,7 @@ export function VideoStudio() {
                 size="sm"
                 onClick={handleProcessAll}
                 disabled={isProcessing || items.every((i) => i.status === "completed")}
-                className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-sm"
+                className="btn-press text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-[0_0_20px_rgba(99,102,241,0.25)] font-semibold px-3.5"
               >
                 {isProcessing ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -330,7 +330,7 @@ export function VideoStudio() {
                   variant="outline"
                   size="sm"
                   onClick={downloadActiveCleanVideo}
-                  className="text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 gap-1.5 h-8"
+                  className="btn-press text-xs text-emerald-300 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1.5 h-8 font-semibold px-3 shadow-sm"
                 >
                   <Download className="h-3.5 w-3.5" />
                   <span>Download Active MP4</span>

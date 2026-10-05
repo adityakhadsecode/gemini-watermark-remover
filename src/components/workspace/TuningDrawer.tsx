@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Sliders, Sparkles, Wand2, ShieldAlert, RotateCcw } from "lucide-react";
+import { Sliders, Wand2, RotateCcw } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,9 +20,7 @@ export function TuningDrawer({
   options,
   onChange,
   onReset,
-  detectedConfidence,
   detectedVariant,
-  isProcessing,
 }: TuningDrawerProps) {
   const setProfile = (profile: ProfileMode) => {
     onChange({ ...options, profile });
@@ -64,42 +62,44 @@ export function TuningDrawer({
   };
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-white/[0.08] bg-card p-4 sm:p-5 shadow-sm text-sm">
+    <div className="glass-panel flex flex-col gap-5 rounded-2xl p-5 shadow-2xl text-sm border border-white/[0.08]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+      <div className="flex items-center justify-between border-b border-white/[0.07] pb-3.5">
         <div className="flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-indigo-400" />
-          <span className="font-semibold text-foreground">Restoration Tuning</span>
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <Sliders className="h-3.5 w-3.5" />
+          </div>
+          <span className="font-bold text-sm tracking-tight text-foreground">Restoration Tuning</span>
         </div>
         <Button
           variant="ghost"
           size="xs"
           onClick={onReset}
-          className="text-xs text-muted-foreground hover:text-foreground h-6"
+          className="btn-press text-xs text-muted-foreground hover:text-foreground h-7 px-2.5 hover:bg-white/[0.04]"
         >
-          <RotateCcw className="h-3 w-3 mr-1" />
+          <RotateCcw className="h-3 w-3 mr-1.5" />
           Reset Defaults
         </Button>
       </div>
 
       {/* 1. Profile Mode Selection */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-foreground">Watermark Profile</label>
+          <label className="text-xs font-semibold text-foreground tracking-tight">Watermark Profile</label>
           {detectedVariant && (
-            <Badge variant="outline" className="font-mono text-[10px] text-indigo-400 border-indigo-500/30">
+            <Badge variant="outline" className="font-mono text-[10px] text-indigo-300 border-indigo-500/30 bg-indigo-500/10">
               Matched: {detectedVariant.toUpperCase()}
             </Badge>
           )}
         </div>
-        <div className="grid grid-cols-3 gap-1.5 rounded-lg border border-white/[0.08] bg-muted/20 p-1">
+        <div className="grid grid-cols-3 gap-1 rounded-xl border border-white/[0.08] bg-[#0c0f17] p-1 shadow-inner">
           <button
             type="button"
             onClick={() => setProfile("auto")}
-            className={`rounded-md py-1.5 text-xs font-medium transition-all ${
+            className={`btn-press rounded-lg py-2 text-xs font-semibold transition-all ${
               options.profile === "auto"
-                ? "bg-card text-foreground shadow-sm border border-white/[0.08]"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-gradient-to-b from-white/[0.14] to-white/[0.04] text-white shadow-sm border border-white/[0.12]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
             }`}
           >
             Auto Detect
@@ -107,10 +107,10 @@ export function TuningDrawer({
           <button
             type="button"
             onClick={() => setProfile("v2")}
-            className={`rounded-md py-1.5 text-xs font-medium transition-all ${
+            className={`btn-press rounded-lg py-2 text-xs font-semibold transition-all ${
               options.profile === "v2"
-                ? "bg-card text-foreground shadow-sm border border-white/[0.08]"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-gradient-to-b from-white/[0.14] to-white/[0.04] text-white shadow-sm border border-white/[0.12]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
             }`}
           >
             Gemini 3.5+
@@ -118,16 +118,16 @@ export function TuningDrawer({
           <button
             type="button"
             onClick={() => setProfile("v1")}
-            className={`rounded-md py-1.5 text-xs font-medium transition-all ${
+            className={`btn-press rounded-lg py-2 text-xs font-semibold transition-all ${
               options.profile === "v1"
-                ? "bg-card text-foreground shadow-sm border border-white/[0.08]"
-                : "text-muted-foreground hover:text-foreground"
+                ? "bg-gradient-to-b from-white/[0.14] to-white/[0.04] text-white shadow-sm border border-white/[0.12]"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/[0.03]"
             }`}
           >
             Legacy (V1)
           </button>
         </div>
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-[11px] text-muted-foreground/90 leading-relaxed">
           {options.profile === "auto"
             ? "Tries current Gemini 3.5+ profile first; automatically falls back to legacy V1 if skipped."
             : options.profile === "v2"
@@ -137,10 +137,10 @@ export function TuningDrawer({
       </div>
 
       {/* 2. Detection Sensitivity Threshold */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-medium text-foreground">Confidence Threshold</label>
-          <span className="font-mono text-xs text-muted-foreground">
+          <label className="text-xs font-semibold text-foreground tracking-tight">Confidence Threshold</label>
+          <span className="font-mono text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
             {(options.threshold * 100).toFixed(0)}%
           </span>
         </div>
@@ -150,52 +150,52 @@ export function TuningDrawer({
           max={0.8}
           step={0.05}
           onValueChange={setThreshold}
-          className="my-1"
+          className="my-1.5"
         />
-        <div className="flex items-center justify-between text-[10px] text-muted-foreground font-mono">
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground/80 font-mono">
           <span>10% (Sensitive)</span>
           <span>Default: 25%</span>
           <span>80% (Strict)</span>
         </div>
 
         {/* Force Removal Checkbox */}
-        <label className="mt-2 flex items-center gap-2 cursor-pointer select-none">
+        <label className="mt-2 flex items-center gap-2.5 cursor-pointer select-none rounded-xl border border-white/[0.06] bg-white/[0.02] p-2.5 hover:bg-white/[0.04] transition-colors">
           <input
             type="checkbox"
             checked={options.force}
             onChange={(e) => setForce(e.target.checked)}
-            className="rounded border-white/[0.2] bg-muted/30 text-indigo-500 focus:ring-indigo-500/20"
+            className="h-3.5 w-3.5 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
           />
-          <span className="text-xs text-foreground">Force removal even if detection confidence is low</span>
+          <span className="text-xs font-medium text-foreground">Force removal even if detection confidence is low</span>
         </label>
       </div>
 
       {/* 3. Soft Inpainting (Residual Edge Smoothing) */}
-      <div className="flex flex-col gap-3 rounded-lg border border-white/[0.08] bg-muted/10 p-3">
+      <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-[#0c0f17]/80 p-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Wand2 className="h-3.5 w-3.5 text-indigo-400" />
-            <span className="text-xs font-medium text-foreground">Residual Edge Smoothing</span>
+            <span className="text-xs font-semibold text-foreground">Residual Edge Smoothing</span>
           </div>
           <input
             type="checkbox"
             checked={Boolean(options.softInpaint)}
             onChange={(e) => toggleInpaint(e.target.checked)}
-            className="rounded border-white/[0.2] bg-muted/30 text-indigo-500 focus:ring-indigo-500/20"
+            className="h-3.5 w-3.5 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
           />
         </div>
 
         {options.softInpaint ? (
-          <div className="flex flex-col gap-3 pt-1">
-            <p className="text-[11px] text-muted-foreground">
+          <div className="flex flex-col gap-3 pt-1 border-t border-white/[0.06]">
+            <p className="text-[11px] text-muted-foreground/90">
               Soft gradient blend to clean residual sparkle halos on lossy compressed or resized images.
             </p>
 
             {/* Strength */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Smoothing Strength</span>
-                <span className="font-mono text-[11px] text-foreground">
+                <span className="text-muted-foreground text-[11px]">Smoothing Strength</span>
+                <span className="font-mono text-[11px] font-bold text-foreground">
                   {(options.softInpaint.strength * 100).toFixed(0)}%
                 </span>
               </div>
@@ -209,10 +209,10 @@ export function TuningDrawer({
             </div>
 
             {/* Radius */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Filter Radius</span>
-                <span className="font-mono text-[11px] text-foreground">
+                <span className="text-muted-foreground text-[11px]">Filter Radius</span>
+                <span className="font-mono text-[11px] font-bold text-foreground">
                   {options.softInpaint.radius} px
                 </span>
               </div>
@@ -226,7 +226,7 @@ export function TuningDrawer({
             </div>
           </div>
         ) : (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-[11px] text-muted-foreground/80">
             Optional. Enable if the processed image leaves faint residual watermark edges from JPEG compression.
           </p>
         )}

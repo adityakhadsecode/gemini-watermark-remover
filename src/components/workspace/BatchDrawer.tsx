@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Download, FileArchive, CheckCircle2, AlertTriangle, Loader2, Trash2, Plus, X } from "lucide-react";
+import { Download, FileArchive, CheckCircle2, AlertTriangle, Loader2, Trash2, Plus, X, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -107,7 +107,7 @@ export function BatchDrawer({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-card p-4 shadow-sm">
+    <div className="glass-panel flex flex-col gap-3.5 rounded-2xl p-4 sm:p-5 shadow-2xl border border-white/[0.08]">
       <input
         ref={fileInputRef}
         type="file"
@@ -118,15 +118,17 @@ export function BatchDrawer({
       />
 
       {/* Drawer Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <FileArchive className="h-4 w-4 text-indigo-400" />
-          <span className="font-semibold text-xs text-foreground">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <Layers className="h-3.5 w-3.5" />
+          </div>
+          <span className="font-bold text-xs tracking-tight text-foreground">
             Image Batch Queue ({completedCount}/{items.length} Ready)
           </span>
           {inProgressCount > 0 && (
-            <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-400 bg-indigo-500/10 gap-1">
-              <Loader2 className="h-2.5 w-2.5 animate-spin" />
+            <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-300 bg-indigo-500/10 gap-1.5 px-2 py-0.5">
+              <Loader2 className="h-3 w-3 animate-spin" />
               {inProgressCount} parallel workers active
             </Badge>
           )}
@@ -138,7 +140,7 @@ export function BatchDrawer({
               type="checkbox"
               checked={autoDownloadZip}
               onChange={(e) => setAutoDownloadZip(e.target.checked)}
-              className="h-3 w-3 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
+              className="h-3.5 w-3.5 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
             />
             Auto-download ZIP
           </label>
@@ -148,7 +150,7 @@ export function BatchDrawer({
               variant="outline"
               size="xs"
               onClick={() => fileInputRef.current?.click()}
-              className="text-[11px] h-6 border-dashed border-white/[0.2] hover:border-indigo-400 hover:text-indigo-300 gap-1"
+              className="btn-press text-[11px] h-7 border-dashed border-white/[0.18] hover:border-indigo-400 hover:text-indigo-300 gap-1.5 px-2.5"
             >
               <Plus className="h-3 w-3" />
               Add More
@@ -160,7 +162,7 @@ export function BatchDrawer({
             size="xs"
             onClick={onClear}
             disabled={isProcessing}
-            className="text-[11px] h-6 text-muted-foreground hover:text-foreground"
+            className="btn-press text-[11px] h-7 text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-2.5"
           >
             <Trash2 className="h-3 w-3 mr-1" />
             Clear All
@@ -171,33 +173,37 @@ export function BatchDrawer({
             size="xs"
             disabled={isZipping || completedCount === 0}
             onClick={downloadAllAsZip}
-            className="text-[11px] h-6 bg-indigo-600 hover:bg-indigo-500 text-white gap-1 shadow-sm"
+            className="btn-press text-[11px] h-7 bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 shadow-[0_0_20px_rgba(99,102,241,0.25)] px-3 font-semibold"
           >
             {isZipping ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
-            Export All ZIP
+            Export All (.ZIP)
           </Button>
         </div>
       </div>
 
       {/* Progress Bar */}
       {completedCount < items.length && (
-        <div className="flex flex-col gap-1">
-          <Progress value={progressPercent} className="h-1.5 bg-muted/40" />
+        <div className="flex flex-col gap-1.5">
+          <div className="flex justify-between font-mono text-[10px] text-muted-foreground">
+            <span>Overall Queue Progress</span>
+            <span>{progressPercent}%</span>
+          </div>
+          <Progress value={progressPercent} className="h-1.5 bg-white/[0.05]" />
         </div>
       )}
 
       {/* Thumbnail Strip */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
+      <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-thin">
         {items.map((item, idx) => {
           const isActive = idx === activeIndex;
           return (
             <div
               key={item.id}
               onClick={() => onSelectIndex(idx)}
-              className={`group relative flex h-20 w-20 flex-shrink-0 cursor-pointer flex-col overflow-hidden rounded-lg border transition-all ${
+              className={`group relative flex h-22 w-22 flex-shrink-0 cursor-pointer flex-col overflow-hidden rounded-xl border transition-all duration-200 ${
                 isActive
-                  ? "border-indigo-500 ring-2 ring-indigo-500/20 shadow-md"
-                  : "border-white/[0.08] bg-muted/20 hover:border-white/[0.2]"
+                  ? "border-indigo-500 ring-2 ring-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.25)] scale-[1.02]"
+                  : "border-white/[0.08] bg-[#0c0f17] hover:border-white/[0.2] hover:bg-[#121622]"
               }`}
             >
               <img
@@ -207,15 +213,15 @@ export function BatchDrawer({
               />
 
               {/* Status overlay badge */}
-              <div className="absolute top-1 right-1 flex items-center gap-1">
+              <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
                 {item.status === "completed" && (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 bg-black/70 rounded-full" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 bg-black/80 rounded-full shadow-sm" />
                 )}
                 {item.status === "skipped" && (
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 bg-black/70 rounded-full" />
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 bg-black/80 rounded-full shadow-sm" />
                 )}
                 {item.status === "processing" && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400 bg-black/70 rounded-full" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400 bg-black/80 rounded-full shadow-sm" />
                 )}
 
                 {/* Remove button on hover */}
@@ -225,7 +231,7 @@ export function BatchDrawer({
                     e.stopPropagation();
                     onRemoveItem(item.id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-red-500/80 text-white rounded p-0.5"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/90 hover:bg-red-500 text-white rounded p-0.5"
                   title="Remove item"
                 >
                   <X className="h-2.5 w-2.5" />
@@ -233,8 +239,8 @@ export function BatchDrawer({
               </div>
 
               {/* Filename bottom gradient */}
-              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-1">
-                <p className="truncate text-[9px] font-mono text-white/90">
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-1.5">
+                <p className="truncate text-[9px] font-mono font-medium text-white/90">
                   {item.name}
                 </p>
               </div>

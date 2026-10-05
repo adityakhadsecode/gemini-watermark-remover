@@ -3,13 +3,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Download,
-  FileArchive,
   CheckCircle2,
-  AlertTriangle,
   Loader2,
   Trash2,
   Plus,
-  Play,
   Film,
   X,
   Sparkles,
@@ -44,7 +41,7 @@ interface VideoBatchDrawerProps {
   onSelectActive: (id: string) => void;
   onRemoveItem: (id: string) => void;
   onClearAll: () => void;
-  onAddVideos: (files: File[]) => void;
+  onAddVideos?: (files: File[]) => void;
   onProcessAll: () => void;
 }
 
@@ -136,7 +133,7 @@ export function VideoBatchDrawer({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/[0.08] bg-card p-4 sm:p-5 shadow-sm">
+    <div className="glass-panel flex flex-col gap-4 rounded-2xl p-5 shadow-2xl border border-white/[0.08]">
       <input
         ref={fileInputRef}
         type="file"
@@ -146,42 +143,54 @@ export function VideoBatchDrawer({
         onChange={handleFileInput}
       />
 
-      {/* Header & Main Batch Actions */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
-        <div className="flex items-center gap-2">
-          <Film className="h-4 w-4 text-indigo-400" />
-          <span className="font-semibold text-xs text-foreground">
-            Video Batch Queue ({completedCount}/{items.length} Ready)
-          </span>
-          {inProgressItem && (
-            <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-400 bg-indigo-500/10 gap-1">
-              <Loader2 className="h-2.5 w-2.5 animate-spin" />
-              Processing: {inProgressItem.name} ({inProgressItem.progressPercent}%)
-            </Badge>
-          )}
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] pb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+            <Film className="h-4 w-4" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-sm tracking-tight text-foreground">
+                Veo Video Queue
+              </span>
+              <Badge variant="outline" className="text-[10px] font-mono border-cyan-500/30 text-cyan-300 bg-cyan-500/10 px-2 py-0.5">
+                {completedCount}/{items.length} Ready
+              </Badge>
+              {inProgressItem && (
+                <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-300 bg-indigo-500/10 gap-1.5 px-2 py-0.5 animate-pulse">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Processing: {inProgressItem.name}
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="xs"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isProcessing}
-            className="text-[11px] h-7 border-dashed border-white/[0.2] hover:border-indigo-400 hover:text-indigo-300 gap-1"
-          >
-            <Plus className="h-3 w-3" />
-            Add Videos
-          </Button>
+        {/* Top Actions */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {onAddVideos && (
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isProcessing}
+              className="btn-press text-[11px] h-7 border-dashed border-white/[0.18] hover:border-cyan-400 hover:text-cyan-300 gap-1.5 px-2.5"
+            >
+              <Plus className="h-3 w-3" />
+              Add More Videos
+            </Button>
+          )}
 
           <Button
             variant="outline"
             size="xs"
             onClick={onClearAll}
             disabled={isProcessing}
-            className="text-[11px] h-7 text-muted-foreground hover:text-foreground"
+            className="btn-press text-[11px] h-7 text-muted-foreground hover:text-foreground hover:bg-white/[0.04] px-2.5"
           >
             <Trash2 className="h-3 w-3 mr-1" />
-            Clear
+            Clear Queue
           </Button>
 
           {pendingCount > 0 && (
@@ -190,7 +199,7 @@ export function VideoBatchDrawer({
               size="xs"
               onClick={onProcessAll}
               disabled={isProcessing}
-              className="text-[11px] h-7 bg-indigo-600 hover:bg-indigo-500 text-white gap-1 shadow-sm"
+              className="btn-press text-[11px] h-7 bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 shadow-[0_0_20px_rgba(99,102,241,0.25)] font-semibold px-3"
             >
               {isProcessing ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -217,7 +226,7 @@ export function VideoBatchDrawer({
               size="xs"
               onClick={downloadAllAsZip}
               disabled={isZipping}
-              className="text-[11px] h-7 gap-1 shadow-sm"
+              className="btn-press text-[11px] h-7 gap-1.5 shadow-sm font-semibold px-3"
             >
               {isZipping ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
               Export All (.ZIP)
@@ -233,7 +242,7 @@ export function VideoBatchDrawer({
             <span>Overall Batch Progress</span>
             <span>{overallPercent}%</span>
           </div>
-          <Progress value={overallPercent} className="h-1.5 bg-muted/40" />
+          <Progress value={overallPercent} className="h-1.5 bg-white/[0.06]" />
         </div>
       )}
 
@@ -246,15 +255,15 @@ export function VideoBatchDrawer({
             <div
               key={item.id}
               onClick={() => onSelectActive(item.id)}
-              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-2.5 px-2 rounded-lg cursor-pointer transition-all ${
+              className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 py-3 px-3 rounded-xl cursor-pointer transition-all duration-200 ${
                 isActive
-                  ? "bg-indigo-500/10 border border-indigo-500/30"
-                  : "hover:bg-muted/20"
+                  ? "bg-indigo-500/[0.12] border border-indigo-500/40 shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                  : "hover:bg-white/[0.03] border border-transparent"
               }`}
             >
               {/* Left: Thumbnail & Details */}
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="relative flex h-14 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-md border border-white/[0.08] bg-black">
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="relative flex h-14 w-22 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-white/[0.1] bg-black shadow-md">
                   {item.previewThumbnailUrl ? (
                     <img
                       src={item.previewThumbnailUrl}
@@ -265,44 +274,44 @@ export function VideoBatchDrawer({
                     <Film className="h-5 w-5 text-muted-foreground" />
                   )}
                   {item.status === "completed" && (
-                    <div className="absolute inset-0 bg-emerald-500/20 flex items-center justify-center">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    <div className="absolute inset-0 bg-emerald-500/25 flex items-center justify-center backdrop-blur-[1px]">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-300 drop-shadow" />
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-semibold text-foreground truncate max-w-xs sm:max-w-sm">
+                    <span className="font-mono text-xs font-bold text-foreground truncate max-w-xs sm:max-w-sm">
                       {item.name}
                     </span>
                     {isActive && (
-                      <Badge variant="outline" className="text-[9px] font-mono border-indigo-500/40 text-indigo-400 bg-indigo-500/10">
+                      <Badge variant="outline" className="text-[9px] font-mono border-indigo-500/50 text-indigo-300 bg-indigo-500/20 px-1.5 py-0.2">
                         Active Tuner
                       </Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground mt-0.5">
                     {item.width && item.height && (
-                      <span>{item.width}×{item.height}</span>
+                      <span>{item.width} &times; {item.height}</span>
                     )}
                     {item.durationSeconds && (
-                      <span>· {item.durationSeconds.toFixed(1)}s</span>
+                      <span>&bull; {item.durationSeconds.toFixed(1)}s</span>
                     )}
                     {item.totalFrames && item.status === "completed" && (
-                      <span>· {item.totalFrames} frames cleaned</span>
+                      <span className="text-emerald-400">&bull; {item.totalFrames} frames cleaned</span>
                     )}
                   </div>
 
                   {/* Progress bar per item if actively processing */}
                   {item.status === "processing" && (
                     <div className="w-48 mt-1.5 flex items-center gap-2">
-                      <Progress value={item.progressPercent} className="h-1 bg-muted/40" />
-                      <span className="text-[10px] font-mono text-indigo-400">{item.progressPercent}%</span>
+                      <Progress value={item.progressPercent} className="h-1 bg-white/[0.1]" />
+                      <span className="text-[10px] font-mono text-indigo-300 font-bold">{item.progressPercent}%</span>
                     </div>
                   )}
                   {item.error && (
-                    <span className="text-[10px] text-red-400 mt-1">{item.error}</span>
+                    <span className="text-[10px] text-red-400 font-mono mt-1">{item.error}</span>
                   )}
                 </div>
               </div>
@@ -314,7 +323,7 @@ export function VideoBatchDrawer({
                     variant="outline"
                     size="xs"
                     onClick={() => downloadSingle(item)}
-                    className="text-[11px] h-6 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 gap-1"
+                    className="btn-press text-[11px] h-7 text-emerald-300 border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 gap-1.5 font-semibold px-2.5 shadow-sm"
                   >
                     <Download className="h-3 w-3" />
                     Download MP4
@@ -326,10 +335,10 @@ export function VideoBatchDrawer({
                   size="icon-xs"
                   onClick={() => onRemoveItem(item.id)}
                   disabled={item.status === "processing"}
-                  className="text-muted-foreground hover:text-red-400 h-6 w-6"
+                  className="btn-press text-muted-foreground hover:text-red-400 hover:bg-white/[0.04] h-7 w-7"
                   title="Remove from queue"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>

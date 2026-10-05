@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
-import { Sliders, RotateCcw, Crosshair, Eye } from "lucide-react";
+import { RotateCcw, Crosshair, Eye, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import type { VideoTunerSettings, VideoWatermarkBox } from "@/lib/video/types";
-import { cleanFrame, VIDEO_PRESETS, VIDEO_DEFAULTS } from "@/lib/video/config";
+import { cleanFrame, VIDEO_PRESETS } from "@/lib/video/config";
 
 interface VideoTunerProps {
   frame: { width: number; height: number; imageData: ImageData } | null;
@@ -109,13 +109,15 @@ export function VideoTuner({
   };
 
   return (
-    <div className="flex flex-col gap-5 rounded-xl border border-white/[0.08] bg-card p-4 sm:p-5 shadow-sm text-sm">
+    <div className="glass-panel flex flex-col gap-5 rounded-2xl p-5 shadow-2xl text-sm border border-white/[0.08]">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+      <div className="flex items-center justify-between border-b border-white/[0.07] pb-3.5">
         <div className="flex items-center gap-2">
-          <Crosshair className="h-4 w-4 text-indigo-400" />
-          <span className="font-semibold text-foreground">Interactive Watermark Tuner</span>
-          <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <Crosshair className="h-3.5 w-3.5" />
+          </div>
+          <span className="font-bold text-sm tracking-tight text-foreground">Interactive Watermark Tuner</span>
+          <Badge variant="outline" className="text-[10px] font-mono border-emerald-500/30 text-emerald-300 bg-emerald-500/10 px-2">
             Live Preview
           </Badge>
         </div>
@@ -123,73 +125,76 @@ export function VideoTuner({
           variant="ghost"
           size="xs"
           onClick={() => applyPreset(activePreset)}
-          className="text-xs text-muted-foreground hover:text-foreground h-6"
+          className="btn-press text-xs text-muted-foreground hover:text-foreground h-7 px-2.5 hover:bg-white/[0.04]"
         >
-          <RotateCcw className="h-3 w-3 mr-1" />
-          Reset to Preset
+          <RotateCcw className="h-3 w-3 mr-1.5" />
+          Reset Preset
         </Button>
       </div>
 
-      {/* Preset Pills */}
-      <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium text-foreground">Veo Geometry Preset</label>
-        <div className="grid grid-cols-2 gap-2">
+      {/* Preset Cards */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-semibold text-foreground tracking-tight">Veo Geometry Preset</label>
+        <div className="grid grid-cols-2 gap-2.5">
           {VIDEO_PRESETS.map((p) => (
             <button
               key={p.id}
               type="button"
               onClick={() => applyPreset(p.id)}
-              className={`rounded-lg border px-3 py-2 text-left transition-all ${
+              className={`btn-press rounded-xl border p-3 text-left transition-all ${
                 activePreset === p.id
-                  ? "border-indigo-500/40 bg-indigo-500/10 text-foreground"
-                  : "border-white/[0.08] bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground"
+                  ? "border-indigo-500/50 bg-gradient-to-b from-indigo-500/15 to-indigo-500/5 text-foreground shadow-[0_0_20px_rgba(99,102,241,0.15)]"
+                  : "border-white/[0.08] bg-[#0c0f17] text-muted-foreground hover:bg-[#121622] hover:text-foreground"
               }`}
             >
-              <div className="text-xs font-semibold">{p.label}</div>
-              <div className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">{p.desc}</div>
+              <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3 text-indigo-400" />
+                {p.label}
+              </div>
+              <div className="text-[10px] text-muted-foreground/80 mt-1 line-clamp-1">{p.desc}</div>
             </button>
           ))}
         </div>
       </div>
 
       {/* Live Preview Views (Main + Zoomed Corner) */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-center bg-black/40 rounded-xl p-3 border border-white/[0.05]">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-center bg-[#07080c] rounded-2xl p-4 border border-white/[0.07] shadow-inner">
         <div className="flex flex-col items-center">
-          <span className="text-[10px] font-mono text-muted-foreground mb-1 flex items-center gap-1">
+          <span className="text-[10px] font-mono text-slate-400 mb-1.5 flex items-center gap-1.5">
             <Eye className="h-3 w-3 text-indigo-400" /> Full Frame
           </span>
           <canvas
             ref={mainCanvasRef}
-            className="rounded-lg border border-white/[0.1] bg-black/60 shadow-inner max-h-48"
+            className="rounded-xl border border-white/[0.1] bg-black/80 shadow-2xl max-h-48"
           />
         </div>
 
         <div className="flex flex-col items-center">
-          <span className="text-[10px] font-mono text-emerald-400 mb-1 flex items-center gap-1">
-            <Crosshair className="h-3 w-3" /> Zoomed Watermark (Cleaned)
+          <span className="text-[10px] font-mono text-emerald-300 mb-1.5 flex items-center gap-1.5">
+            <Crosshair className="h-3 w-3 text-emerald-400" /> Zoomed Corner (Cleaned)
           </span>
           <canvas
             ref={zoomCanvasRef}
             width={200}
             height={200}
-            className="rounded-lg border border-emerald-500/30 bg-black/80 shadow-md"
+            className="rounded-xl border border-emerald-500/40 bg-black shadow-[0_0_24px_rgba(16,185,129,0.15)]"
             style={{ imageRendering: "pixelated" }}
           />
         </div>
       </div>
 
-      <p className="text-[11px] text-muted-foreground leading-relaxed">
+      <p className="text-[11px] text-muted-foreground/90 leading-relaxed">
         Adjust the sliders below until the watermark vanishes in the{" "}
-        <span className="text-emerald-400 font-mono">green zoomed box</span>. The watermark box matches Veo&apos;s dynamic resolution scale.
+        <span className="text-emerald-400 font-mono font-semibold">green zoomed box</span>. The watermark box adapts dynamically to video resolution.
       </p>
 
       {/* Live Tuning Sliders */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-4 pt-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-1">
         {/* Gain / Strength */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Inversion Strength (Gain)</span>
-            <span className="font-mono text-[11px] text-foreground font-semibold">
+            <span className="text-muted-foreground text-[11px]">Inversion Strength (Gain)</span>
+            <span className="font-mono text-[11px] text-indigo-300 font-bold bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
               {settings.gain.toFixed(2)}×
             </span>
           </div>
@@ -205,8 +210,8 @@ export function VideoTuner({
         {/* Size Scale */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Watermark Size</span>
-            <span className="font-mono text-[11px] text-foreground font-semibold">
+            <span className="text-muted-foreground text-[11px]">Watermark Size</span>
+            <span className="font-mono text-[11px] text-indigo-300 font-bold bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
               {settings.sizeScale.toFixed(2)}×
             </span>
           </div>
@@ -222,8 +227,8 @@ export function VideoTuner({
         {/* Offset X */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Position Offset X</span>
-            <span className="font-mono text-[11px] text-foreground font-semibold">
+            <span className="text-muted-foreground text-[11px]">Position Offset X</span>
+            <span className="font-mono text-[11px] text-indigo-300 font-bold bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
               {settings.offsetX > 0 ? `+${settings.offsetX}` : settings.offsetX} px
             </span>
           </div>
@@ -239,8 +244,8 @@ export function VideoTuner({
         {/* Offset Y */}
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-muted-foreground">Position Offset Y</span>
-            <span className="font-mono text-[11px] text-foreground font-semibold">
+            <span className="text-muted-foreground text-[11px]">Position Offset Y</span>
+            <span className="font-mono text-[11px] text-indigo-300 font-bold bg-indigo-500/10 border border-indigo-500/20 px-2 py-0.5 rounded">
               {settings.offsetY > 0 ? `+${settings.offsetY}` : settings.offsetY} px
             </span>
           </div>
