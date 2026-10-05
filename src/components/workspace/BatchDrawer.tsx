@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Download, FileArchive, CheckCircle2, AlertTriangle, Loader2, Trash2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import JSZip from "jszip";
+import { toast } from "sonner";
 
 export interface BatchItem {
   id: string;
@@ -39,15 +40,15 @@ export function BatchDrawer({
   isProcessing,
 }: BatchDrawerProps) {
   const [isZipping, setIsZipping] = useState(false);
+  const [autoDownloadZip, setAutoDownloadZip] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  if (items.length === 0) return null;
+  const prevProcessingRef = useRef(false);
 
   const completedCount = items.filter((i) => i.status === "completed" || i.status === "skipped").length;
   const inProgressCount = items.filter((i) => i.status === "processing").length;
-  const progressPercent = Math.round((completedCount / items.length) * 100);
+  const progressPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
-  const downloadAllAsZip = async () => {
+  const downloadAllAsZip = useCallback(async () => {
     setIsZipping(true);
     try {
       const zip = new JSZip();
@@ -66,10 +67,36 @@ export function BatchDrawer({
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to generate zip:", err);
+      toast.error("Failed to generate ZIP archive");
     } finally {
       setIsZipping(false);
     }
-  };
+  }, [items]);
+
+  useEffect(() => {
+    if (prevProcessingRef.current && !isProcessing && items.length > 0) {
+      const readyItems = items.filter((i) => i.status === "completed" || i.status === "skipped");
+      if (readyItems.length > 0) {
+        if (autoDownloadZip) {
+          downloadAllAsZip();
+          toast.success(`Batch complete! Downloaded ${readyItems.length} cleaned images.`, {
+            duration: 5000,
+          });
+        } else {
+          toast.success(`Batch complete! ${readyItems.length} images processed.`, {
+            action: {
+              label: "Download ZIP",
+              onClick: () => downloadAllAsZip(),
+            },
+            duration: 8000,
+          });
+        }
+      }
+    }
+    prevProcessingRef.current = !!isProcessing;
+  }, [isProcessing, autoDownloadZip, items, downloadAllAsZip]);
+
+  if (items.length === 0) return null;
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && onAddFiles) {
@@ -105,7 +132,17 @@ export function BatchDrawer({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoDownloadZip}
+              onChange={(e) => setAutoDownloadZip(e.target.checked)}
+              className="h-3 w-3 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
+            />
+            Auto-download ZIP
+          </label>
+
           {onAddFiles && (
             <Button
               variant="outline"

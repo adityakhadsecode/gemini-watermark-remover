@@ -55,9 +55,10 @@
   - `src/components/workspace/ComparisonSlider.tsx`: Split-wipe comparison slider with zoom/pan, hold-to-peek (`V`/`Space`), and focus-watermark.
   - `src/components/workspace/TuningDrawer.tsx`: Sensitivity slider, profile selector, force removal toggle, and inpainting controls.
   - `src/components/workspace/TelemetryBadge.tsx`: Displays resolution, matched profile, confidence meter, and execution time.
-  - `src/components/workspace/BatchDrawer.tsx`: High-throughput image batch queue with 3-worker parallel concurrency, thumbnail strip, "Add More Images", and `JSZip` export.
-  - `src/components/workspace/ImageStudio.tsx`: Complete image restoration workspace with high-throughput batch processing.
-  - `src/components/workspace/VideoBatchDrawer.tsx`: Video batch queue with thumbnail previews, per-video progress meters, individual MP4 downloads, and `JSZip` bundle export.
+  - `src/components/workspace/BatchDrawer.tsx`: High-throughput image batch queue with auto-detected CPU concurrency (clamped 2–6 workers), "Auto-download ZIP" toggle, completion toast with direct download action, thumbnail strip, and "Add More Images".
+  - `src/components/workspace/ImageStudio.tsx`: Complete image restoration workspace with dynamic parallel worker pool based on `navigator.hardwareConcurrency`.
+  - `src/components/workspace/VideoBatchDrawer.tsx`: Video batch queue with thumbnail previews, per-video progress meters, individual MP4 downloads, "Auto-download ZIP" toggle, and `JSZip` bundle export.
+  - Robust batch error recovery: failing individual items are marked with an error badge and message while the batch queue gracefully completes all remaining files.
   - `src/components/workspace/VideoStudio.tsx`: Full video workspace with multi-video batch queue, live interactive corner tuner on active video, and sequential WebCodecs execution.
   - `src/app/page.tsx`: Assembled responsive workspace shell with studio switcher and technical footer.
   - Verified `npm run build` succeeds cleanly with 0 errors.

@@ -100,8 +100,9 @@ export function ImageStudio() {
     const startIndex = items.length;
     setActiveIndex(startIndex);
 
-    // Process items with parallel concurrency (up to 3 simultaneous workers)
-    const CONCURRENCY = 3;
+    // Automatically detect hardware cores (clamped between 2 and 6 parallel workers)
+    const detectedCores = typeof navigator !== "undefined" ? navigator.hardwareConcurrency || 4 : 4;
+    const CONCURRENCY = Math.min(6, Math.max(2, detectedCores));
     let nextIdx = 0;
 
     const worker = async () => {

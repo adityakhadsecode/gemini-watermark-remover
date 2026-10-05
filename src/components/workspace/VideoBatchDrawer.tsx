@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Download,
   FileArchive,
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import JSZip from "jszip";
+import { toast } from "sonner";
 
 export interface VideoBatchItem {
   id: string;
@@ -58,16 +59,16 @@ export function VideoBatchDrawer({
   onProcessAll,
 }: VideoBatchDrawerProps) {
   const [isZipping, setIsZipping] = useState(false);
+  const [autoDownloadZip, setAutoDownloadZip] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  if (items.length === 0) return null;
+  const prevProcessingRef = useRef(false);
 
   const completedCount = items.filter((i) => i.status === "completed").length;
   const pendingCount = items.filter((i) => i.status === "pending").length;
   const inProgressItem = items.find((i) => i.status === "processing");
-  const overallPercent = Math.round((completedCount / items.length) * 100);
+  const overallPercent = items.length > 0 ? Math.round((completedCount / items.length) * 100) : 0;
 
-  const downloadAllAsZip = async () => {
+  const downloadAllAsZip = useCallback(async () => {
     setIsZipping(true);
     try {
       const zip = new JSZip();
@@ -86,10 +87,36 @@ export function VideoBatchDrawer({
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error("Failed to generate zip bundle:", err);
+      toast.error("Failed to generate ZIP archive");
     } finally {
       setIsZipping(false);
     }
-  };
+  }, [items]);
+
+  useEffect(() => {
+    if (prevProcessingRef.current && !isProcessing && items.length > 0) {
+      const finished = items.filter((i) => i.status === "completed");
+      if (finished.length > 0) {
+        if (autoDownloadZip) {
+          downloadAllAsZip();
+          toast.success(`Video queue complete! Downloaded ${finished.length} videos as ZIP.`, {
+            duration: 5000,
+          });
+        } else {
+          toast.success(`Video queue complete! ${finished.length} videos ready.`, {
+            action: {
+              label: "Download ZIP",
+              onClick: () => downloadAllAsZip(),
+            },
+            duration: 8000,
+          });
+        }
+      }
+    }
+    prevProcessingRef.current = !!isProcessing;
+  }, [isProcessing, autoDownloadZip, items, downloadAllAsZip]);
+
+  if (items.length === 0) return null;
 
   const downloadSingle = (item: VideoBatchItem) => {
     if (!item.cleanedUrl) return;
@@ -173,6 +200,16 @@ export function VideoBatchDrawer({
               <span>Process All ({pendingCount} queued)</span>
             </Button>
           )}
+
+          <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={autoDownloadZip}
+              onChange={(e) => setAutoDownloadZip(e.target.checked)}
+              className="h-3 w-3 rounded border-white/20 bg-muted/40 accent-indigo-500 cursor-pointer"
+            />
+            Auto-download ZIP
+          </label>
 
           {completedCount > 0 && (
             <Button
