@@ -95,7 +95,7 @@ export function MediaDropzone({ mode, onFilesSelected, disabled }: MediaDropzone
       <input
         ref={inputRef}
         type="file"
-        multiple={mode === "image"}
+        multiple={true}
         accept={acceptedExtensions}
         className="hidden"
         onChange={(e) => e.target.files && handleFiles(e.target.files)}
@@ -122,7 +122,7 @@ export function MediaDropzone({ mode, onFilesSelected, disabled }: MediaDropzone
       <p className="mt-1 text-xs text-muted-foreground max-w-sm">
         {mode === "image"
           ? "Supports Gemini 3.5+, Legacy Gemini, and free-tier half-scale PNGs/JPEGs. Batch files and clipboard paste supported."
-          : "Supports Google Veo 1080p diamond, 720p standard/compact, and Flow text watermarks. Preserves audio track."}
+          : "Supports Veo landscape & portrait videos. Batch files, live interactive corner tuner, and lossless audio passthrough supported."}
       </p>
 
       {/* Quick shortcuts / hints */}
@@ -135,12 +135,10 @@ export function MediaDropzone({ mode, onFilesSelected, disabled }: MediaDropzone
           <FileArchive className="h-3 w-3 text-muted-foreground" />
           <span>{acceptedExtensions}</span>
         </div>
-        {mode === "image" && (
-          <div className="flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-muted/20 px-2.5 py-1">
-            <UploadCloud className="h-3 w-3 text-emerald-400" />
-            <span>Multiple files ok</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-muted/20 px-2.5 py-1">
+          <UploadCloud className="h-3 w-3 text-emerald-400" />
+          <span>Batch files supported</span>
+        </div>
       </div>
     </div>
   );

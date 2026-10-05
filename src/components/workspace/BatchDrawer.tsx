@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Download, FileArchive, CheckCircle2, AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Download, FileArchive, CheckCircle2, AlertTriangle, Loader2, Trash2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -25,6 +25,8 @@ interface BatchDrawerProps {
   onSelectIndex: (index: number) => void;
   onClear: () => void;
   onRemoveItem: (id: string) => void;
+  onAddFiles?: (files: File[]) => void;
+  isProcessing?: boolean;
 }
 
 export function BatchDrawer({
@@ -33,12 +35,16 @@ export function BatchDrawer({
   onSelectIndex,
   onClear,
   onRemoveItem,
+  onAddFiles,
+  isProcessing,
 }: BatchDrawerProps) {
   const [isZipping, setIsZipping] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (items.length <= 1) return null;
+  if (items.length === 0) return null;
 
   const completedCount = items.filter((i) => i.status === "completed" || i.status === "skipped").length;
+  const inProgressCount = items.filter((i) => i.status === "processing").length;
   const progressPercent = Math.round((completedCount / items.length) * 100);
 
   const downloadAllAsZip = async () => {
@@ -65,36 +71,73 @@ export function BatchDrawer({
     }
   };
 
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && onAddFiles) {
+      const files = Array.from(e.target.files);
+      onAddFiles(files);
+      e.target.value = "";
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-white/[0.08] bg-card p-4 shadow-sm">
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept=".png, .jpg, .jpeg, .webp"
+        className="hidden"
+        onChange={handleFileInput}
+      />
+
       {/* Drawer Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileArchive className="h-4 w-4 text-indigo-400" />
           <span className="font-semibold text-xs text-foreground">
-            Batch Queue ({completedCount}/{items.length} Ready)
+            Image Batch Queue ({completedCount}/{items.length} Ready)
           </span>
+          {inProgressCount > 0 && (
+            <Badge variant="outline" className="text-[10px] font-mono border-indigo-500/30 text-indigo-400 bg-indigo-500/10 gap-1">
+              <Loader2 className="h-2.5 w-2.5 animate-spin" />
+              {inProgressCount} parallel workers active
+            </Badge>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
+          {onAddFiles && (
+            <Button
+              variant="outline"
+              size="xs"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-[11px] h-6 border-dashed border-white/[0.2] hover:border-indigo-400 hover:text-indigo-300 gap-1"
+            >
+              <Plus className="h-3 w-3" />
+              Add More
+            </Button>
+          )}
+
           <Button
             variant="outline"
             size="xs"
             onClick={onClear}
+            disabled={isProcessing}
             className="text-[11px] h-6 text-muted-foreground hover:text-foreground"
           >
             <Trash2 className="h-3 w-3 mr-1" />
-            Clear
+            Clear All
           </Button>
+
           <Button
             variant="default"
             size="xs"
             disabled={isZipping || completedCount === 0}
             onClick={downloadAllAsZip}
-            className="text-[11px] h-6 bg-indigo-600 hover:bg-indigo-500 text-white gap-1"
+            className="text-[11px] h-6 bg-indigo-600 hover:bg-indigo-500 text-white gap-1 shadow-sm"
           >
             {isZipping ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
-            Export ZIP
+            Export All ZIP
           </Button>
         </div>
       </div>
@@ -127,16 +170,29 @@ export function BatchDrawer({
               />
 
               {/* Status overlay badge */}
-              <div className="absolute top-1 right-1">
+              <div className="absolute top-1 right-1 flex items-center gap-1">
                 {item.status === "completed" && (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 bg-black/60 rounded-full" />
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 bg-black/70 rounded-full" />
                 )}
                 {item.status === "skipped" && (
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 bg-black/60 rounded-full" />
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400 bg-black/70 rounded-full" />
                 )}
                 {item.status === "processing" && (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400 bg-black/60 rounded-full" />
+                  <Loader2 className="h-3.5 w-3.5 animate-spin text-indigo-400 bg-black/70 rounded-full" />
                 )}
+
+                {/* Remove button on hover */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveItem(item.id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/80 hover:bg-red-500/80 text-white rounded p-0.5"
+                  title="Remove item"
+                >
+                  <X className="h-2.5 w-2.5" />
+                </button>
               </div>
 
               {/* Filename bottom gradient */}

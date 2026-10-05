@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   Download,
   RefreshCw,
@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { MediaDropzone } from "./MediaDropzone";
 import { VideoTuner } from "./VideoTuner";
+import { VideoBatchDrawer, type VideoBatchItem } from "./VideoBatchDrawer";
 import { grabPreviewFrame, getSparkleImage, processVeoVideo } from "@/lib/video/engine";
 import { getVeoWatermark, VIDEO_DEFAULTS } from "@/lib/video/config";
 import type {
@@ -27,16 +28,14 @@ import type {
 } from "@/lib/video/types";
 
 export function VideoStudio() {
-  const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [originalUrl, setOriginalUrl] = useState<string | null>(null);
-  const [result, setResult] = useState<VideoProcessResult | null>(null);
-  const [progress, setProgress] = useState<VideoProgress | null>(null);
+  const [items, setItems] = useState<VideoBatchItem[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [globalProgress, setGlobalProgress] = useState<VideoProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Tuner & preview frame state
-  const [previewFrame, setPreviewFrame] = useState<{
+  // Tuner & preview frame state (associated with activeId)
+  const [activeFrame, setActiveFrame] = useState<{
     width: number;
     height: number;
     imageData: ImageData;
@@ -45,7 +44,7 @@ export function VideoStudio() {
   const [baseBox, setBaseBox] = useState<VideoWatermarkBox | null>(null);
   const [settings, setSettings] = useState<VideoTunerSettings>({ ...VIDEO_DEFAULTS });
 
-  // Player state
+  // Player state for active item
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -53,56 +52,187 @@ export function VideoStudio() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  const activeItem = items.find((i) => i.id === activeId) || items[0] || null;
+
+  // Helper to load preview frame for a video item
+  const loadPreviewForItem = useCallback(
+    async (file: File) => {
+      try {
+        const [f, bg] = await Promise.all([grabPreviewFrame(file), getSparkleImage()]);
+        setActiveFrame(f);
+        setSparkleImg(bg);
+        setBaseBox(getVeoWatermark(f.width, f.height));
+
+        // Create small thumbnail for list
+        const thumbCanvas = document.createElement("canvas");
+        const thumbScale = Math.min(1, 160 / f.width);
+        thumbCanvas.width = Math.round(f.width * thumbScale);
+        thumbCanvas.height = Math.round(f.height * thumbScale);
+        const tctx = thumbCanvas.getContext("2d");
+        if (tctx) {
+          const off = document.createElement("canvas");
+          off.width = f.width;
+          off.height = f.height;
+          off.getContext("2d")?.putImageData(f.imageData, 0, 0);
+          tctx.drawImage(off, 0, 0, thumbCanvas.width, thumbCanvas.height);
+          return { frame: f, thumbUrl: thumbCanvas.toDataURL("image/jpeg", 0.7) };
+        }
+        return { frame: f, thumbUrl: null };
+      } catch (err) {
+        console.error("Failed to extract preview frame:", err);
+        return { frame: null, thumbUrl: null };
+      }
+    },
+    [],
+  );
+
+  // Handle files selected or dropped
   const handleFilesSelected = async (files: File[]) => {
     if (files.length === 0) return;
-    const file = files[0];
-    setVideoFile(file);
-    if (originalUrl) URL.revokeObjectURL(originalUrl);
-    setOriginalUrl(URL.createObjectURL(file));
-    setResult(null);
-    setProgress(null);
     setError(null);
-    setIsLoadingPreview(true);
 
-    try {
-      const [f, bg] = await Promise.all([
-        grabPreviewFrame(file),
-        getSparkleImage(),
-      ]);
-      setPreviewFrame(f);
-      setSparkleImg(bg);
-      setBaseBox(getVeoWatermark(f.width, f.height));
-    } catch (err) {
-      console.error("Failed to load video preview frame:", err);
-      setError("Could not extract preview frame from video.");
-    } finally {
-      setIsLoadingPreview(false);
+    const newItems: VideoBatchItem[] = files.map((file, idx) => ({
+      id: `${Date.now()}-${idx}-${file.name}`,
+      name: file.name,
+      file,
+      originalUrl: URL.createObjectURL(file),
+      cleanedUrl: null,
+      cleanedBlob: null,
+      status: "pending",
+      progressPercent: 0,
+      previewThumbnailUrl: null,
+    }));
+
+    setItems((prev) => [...prev, ...newItems]);
+
+    // Set first newly added item as active if none is active
+    const firstNew = newItems[0];
+    if (!activeId) {
+      setActiveId(firstNew.id);
+    }
+
+    // Load preview frame for the active item
+    const previewTarget = !activeId ? firstNew : items.find((i) => i.id === activeId) || firstNew;
+    const { frame, thumbUrl } = await loadPreviewForItem(previewTarget.file);
+
+    if (thumbUrl) {
+      setItems((prev) =>
+        prev.map((i) => (i.id === previewTarget.id ? { ...i, previewThumbnailUrl: thumbUrl, width: frame?.width, height: frame?.height } : i)),
+      );
+    }
+
+    // Generate thumbnails in background for other files
+    for (const item of newItems) {
+      if (item.id !== previewTarget.id) {
+        loadPreviewForItem(item.file).then(({ frame: f, thumbUrl: t }) => {
+          if (t) {
+            setItems((prev) =>
+              prev.map((i) => (i.id === item.id ? { ...i, previewThumbnailUrl: t, width: f?.width, height: f?.height } : i)),
+            );
+          }
+        });
+      }
     }
   };
 
-  const startProcessing = async () => {
-    if (!videoFile) return;
+  // Switch active item for tuning / preview
+  const handleSelectActive = async (id: string) => {
+    setActiveId(id);
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+
+    const { frame } = await loadPreviewForItem(item.file);
+    if (frame) {
+      setBaseBox(getVeoWatermark(frame.width, frame.height));
+    }
+  };
+
+  // Process all queued pending videos sequentially
+  const handleProcessAll = async () => {
+    if (isProcessing || items.length === 0) return;
     setIsProcessing(true);
     setError(null);
 
-    try {
-      const res = await processVeoVideo(
-        videoFile,
-        { settings },
-        (p) => {
-          setProgress(p);
-        },
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.status === "completed") continue;
+
+      setItems((prev) =>
+        prev.map((it) => (it.id === item.id ? { ...it, status: "processing", progressPercent: 0 } : it)),
       );
-      setResult(res);
-    } catch (err: unknown) {
-      console.error("Video processing error:", err);
-      const message = err instanceof Error ? err.message : String(err);
-      setError(`Failed to process video: ${message}`);
-    } finally {
-      setIsProcessing(false);
+
+      try {
+        const res = await processVeoVideo(item.file, { settings }, (p) => {
+          setGlobalProgress(p);
+          setItems((prev) =>
+            prev.map((it) => (it.id === item.id ? { ...it, progressPercent: p.percent } : it)),
+          );
+        });
+
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === item.id
+              ? {
+                  ...it,
+                  status: "completed",
+                  cleanedUrl: res.cleanedUrl,
+                  cleanedBlob: res.cleanedBlob,
+                  progressPercent: 100,
+                  durationSeconds: res.durationSeconds,
+                  totalFrames: res.totalFrames,
+                }
+              : it,
+          ),
+        );
+      } catch (err) {
+        console.error(`Error processing video ${item.name}:`, err);
+        const message = err instanceof Error ? err.message : String(err);
+        setItems((prev) =>
+          prev.map((it) =>
+            it.id === item.id ? { ...it, status: "error", error: message } : it,
+          ),
+        );
+      }
+    }
+
+    setIsProcessing(false);
+    setGlobalProgress(null);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    const item = items.find((i) => i.id === id);
+    if (item) {
+      URL.revokeObjectURL(item.originalUrl);
+      if (item.cleanedUrl) URL.revokeObjectURL(item.cleanedUrl);
+    }
+    setItems((prev) => prev.filter((i) => i.id !== id));
+    if (activeId === id) {
+      const remaining = items.filter((i) => i.id !== id);
+      if (remaining.length > 0) {
+        handleSelectActive(remaining[0].id);
+      } else {
+        setActiveId(null);
+        setActiveFrame(null);
+        setBaseBox(null);
+      }
     }
   };
 
+  const handleClearAll = () => {
+    items.forEach((item) => {
+      URL.revokeObjectURL(item.originalUrl);
+      if (item.cleanedUrl) URL.revokeObjectURL(item.cleanedUrl);
+    });
+    setItems([]);
+    setActiveId(null);
+    setActiveFrame(null);
+    setBaseBox(null);
+    setError(null);
+    setGlobalProgress(null);
+    setSettings({ ...VIDEO_DEFAULTS });
+  };
+
+  // Video player controls
   const togglePlay = () => {
     if (!videoRef.current) return;
     if (isPlaying) {
@@ -129,32 +259,18 @@ export function VideoStudio() {
     }
   };
 
-  const downloadCleanVideo = () => {
-    if (!result?.cleanedUrl || !videoFile) return;
+  const downloadActiveCleanVideo = () => {
+    if (!activeItem?.cleanedUrl) return;
     const a = document.createElement("a");
-    a.href = result.cleanedUrl;
-    const baseName = videoFile.name.replace(/\.[^/.]+$/, "");
+    a.href = activeItem.cleanedUrl;
+    const baseName = activeItem.name.replace(/\.[^/.]+$/, "");
     a.download = `${baseName}-veo-clean.mp4`;
     a.click();
   };
 
-  const resetAll = () => {
-    if (originalUrl) URL.revokeObjectURL(originalUrl);
-    if (result?.cleanedUrl) URL.revokeObjectURL(result.cleanedUrl);
-    setVideoFile(null);
-    setOriginalUrl(null);
-    setResult(null);
-    setProgress(null);
-    setError(null);
-    setPreviewFrame(null);
-    setSparkleImg(null);
-    setBaseBox(null);
-    setSettings({ ...VIDEO_DEFAULTS });
-  };
-
   return (
     <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto py-6 px-4">
-      {!videoFile ? (
+      {items.length === 0 ? (
         <MediaDropzone mode="video" onFilesSelected={handleFilesSelected} disabled={isProcessing} />
       ) : (
         <div className="flex flex-col gap-6">
@@ -162,18 +278,22 @@ export function VideoStudio() {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="font-mono text-xs border-indigo-500/30 text-indigo-400 bg-indigo-500/10">
-                Veo Video
+                Veo Video Batch
               </Badge>
-              <span className="font-mono text-xs text-foreground truncate max-w-xs">{videoFile.name}</span>
-              {previewFrame && (
-                <span className="font-mono text-[11px] text-muted-foreground">
-                  {previewFrame.width}×{previewFrame.height}
+              {activeItem && (
+                <span className="font-mono text-xs text-foreground truncate max-w-xs">
+                  Active: {activeItem.name}
                 </span>
               )}
-              {result && (
+              {activeFrame && (
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  {activeFrame.width}×{activeFrame.height}
+                </span>
+              )}
+              {activeItem?.status === "completed" && (
                 <Badge variant="outline" className="font-mono text-[11px] border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
                   <CheckCircle2 className="h-3 w-3 mr-1 inline" />
-                  {result.totalFrames} frames cleaned
+                  Cleaned
                 </Badge>
               )}
             </div>
@@ -182,56 +302,54 @@ export function VideoStudio() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={resetAll}
+                onClick={handleClearAll}
                 disabled={isProcessing}
                 className="text-xs h-8"
               >
                 <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Change Video
+                Reset All
               </Button>
 
-              {!result && (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={startProcessing}
-                  disabled={isProcessing || isLoadingPreview}
-                  className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-sm"
-                >
-                  {isProcessing ? (
-                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Sparkles className="h-3.5 w-3.5" />
-                  )}
-                  <span>{isProcessing ? "Processing Video..." : "Remove & Export Clean MP4"}</span>
-                </Button>
-              )}
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleProcessAll}
+                disabled={isProcessing || items.every((i) => i.status === "completed")}
+                className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-sm"
+              >
+                {isProcessing ? (
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3.5 w-3.5" />
+                )}
+                <span>{isProcessing ? "Processing Queue..." : "Process All Videos"}</span>
+              </Button>
 
-              {result && (
+              {activeItem?.cleanedUrl && (
                 <Button
-                  variant="default"
+                  variant="outline"
                   size="sm"
-                  onClick={downloadCleanVideo}
-                  className="text-xs bg-indigo-600 hover:bg-indigo-500 text-white gap-1.5 h-8 shadow-sm"
+                  onClick={downloadActiveCleanVideo}
+                  className="text-xs text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 gap-1.5 h-8"
                 >
                   <Download className="h-3.5 w-3.5" />
-                  <span>Download Clean MP4</span>
+                  <span>Download Active MP4</span>
                 </Button>
               )}
             </div>
           </div>
 
           {/* Progress / Status banner during processing */}
-          {isProcessing && progress && (
+          {isProcessing && globalProgress && (
             <div className="flex flex-col gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/[0.05] p-4 text-xs font-mono">
               <div className="flex items-center justify-between text-indigo-300">
                 <span className="flex items-center gap-2">
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  {progress.message}
+                  {globalProgress.message}
                 </span>
-                <span>{progress.percent}%</span>
+                <span>{globalProgress.percent}%</span>
               </div>
-              <Progress value={progress.percent} className="h-2 bg-muted/40" />
+              <Progress value={globalProgress.percent} className="h-2 bg-muted/40" />
             </div>
           )}
 
@@ -242,105 +360,89 @@ export function VideoStudio() {
             </div>
           )}
 
-          {/* Live Tuner (shown before video processing is completed) */}
-          {!result && (
-            <div className="flex flex-col gap-4">
-              {isLoadingPreview ? (
-                <div className="flex h-56 w-full items-center justify-center rounded-xl border border-white/[0.08] bg-card">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground text-xs">
-                    <RefreshCw className="h-6 w-6 animate-spin text-indigo-400" />
-                    <span>Extracting preview frame...</span>
-                  </div>
-                </div>
-              ) : (
-                <VideoTuner
-                  frame={previewFrame}
-                  sparkleImg={sparkleImg}
-                  base={baseBox}
-                  settings={settings}
-                  onChange={setSettings}
+          {/* If active item has finished processing, show video player comparison */}
+          {activeItem?.status === "completed" && activeItem.cleanedUrl && (
+            <div className="relative flex flex-col rounded-xl border border-white/[0.08] bg-card overflow-hidden shadow-2xl">
+              <div className="relative flex h-[480px] w-full items-center justify-center bg-black">
+                <video
+                  ref={videoRef}
+                  src={showOriginal ? activeItem.originalUrl : activeItem.cleanedUrl}
+                  onTimeUpdate={handleTimeUpdate}
+                  onEnded={() => setIsPlaying(false)}
+                  className="max-h-full max-w-full object-contain"
+                  playsInline
+                  controls={false}
                 />
-              )}
-            </div>
-          )}
 
-          {/* Result Video Player Display */}
-          {result && (
-            <div className="flex flex-col gap-4">
-              <div className="relative flex flex-col rounded-xl border border-white/[0.08] bg-card overflow-hidden shadow-2xl">
-                <div className="relative flex h-[500px] w-full items-center justify-center bg-black">
-                  <video
-                    ref={videoRef}
-                    src={showOriginal ? originalUrl! : result.cleanedUrl}
-                    onTimeUpdate={handleTimeUpdate}
-                    onEnded={() => setIsPlaying(false)}
-                    className="max-h-full max-w-full object-contain"
-                    playsInline
-                    controls={false}
+                {/* Overlay Label */}
+                <div className="absolute top-4 left-4 rounded bg-black/70 px-2.5 py-1 font-mono text-[11px] text-white/90 border border-white/10 backdrop-blur-sm">
+                  {showOriginal ? "ORIGINAL (WATERMARKED)" : "CLEANED (WATERMARK REMOVED)"}
+                </div>
+              </div>
+
+              {/* Video Controls Bar */}
+              <div className="flex flex-col gap-2 border-t border-white/[0.08] bg-muted/20 p-3">
+                <div className="flex items-center gap-3">
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={togglePlay}
+                    className="text-foreground"
+                  >
+                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                  </Button>
+
+                  <input
+                    type="range"
+                    min={0}
+                    max={duration || 1}
+                    step={0.01}
+                    value={currentTime}
+                    onChange={handleSeek}
+                    className="w-full h-1.5 accent-indigo-500 cursor-pointer bg-muted/40 rounded"
                   />
 
-                  {/* Overlay Label */}
-                  <div className="absolute top-4 left-4 rounded bg-black/70 px-2.5 py-1 font-mono text-[11px] text-white/90 border border-white/10 backdrop-blur-sm">
-                    {showOriginal ? "ORIGINAL (WATERMARKED)" : "CLEANED (WATERMARK REMOVED)"}
-                  </div>
+                  <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                    {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
+                  </span>
+
+                  <Button
+                    variant={showOriginal ? "default" : "outline"}
+                    size="xs"
+                    onClick={() => setShowOriginal((v) => !v)}
+                    className="text-[11px] h-6 whitespace-nowrap"
+                  >
+                    {showOriginal ? "Viewing Original" : "Compare Original"}
+                  </Button>
                 </div>
-
-                {/* Video Controls Bar */}
-                <div className="flex flex-col gap-2 border-t border-white/[0.08] bg-muted/20 p-3">
-                  <div className="flex items-center gap-3">
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      onClick={togglePlay}
-                      className="text-foreground"
-                    >
-                      {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                    </Button>
-
-                    <input
-                      type="range"
-                      min={0}
-                      max={duration || 1}
-                      step={0.01}
-                      value={currentTime}
-                      onChange={handleSeek}
-                      className="w-full h-1.5 accent-indigo-500 cursor-pointer bg-muted/40 rounded"
-                    />
-
-                    <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
-                      {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
-                    </span>
-
-                    <Button
-                      variant={showOriginal ? "default" : "outline"}
-                      size="xs"
-                      onClick={() => setShowOriginal((v) => !v)}
-                      className="text-[11px] h-6 whitespace-nowrap"
-                    >
-                      {showOriginal ? "Viewing Original" : "Compare Original"}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Adjust & Re-run CTA */}
-              <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-card p-4">
-                <div>
-                  <span className="text-xs font-semibold text-foreground">Need to fine-tune the alignment?</span>
-                  <p className="text-[11px] text-muted-foreground">Re-open the tuner sliders to nudge position or strength and re-export.</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setResult(null)}
-                  className="text-xs gap-1.5 h-8"
-                >
-                  <Sliders className="h-3.5 w-3.5 text-indigo-400" />
-                  <span>Adjust & Re-export</span>
-                </Button>
               </div>
             </div>
           )}
+
+          {/* Interactive Tuner for active video */}
+          {activeFrame && (
+            <div className="flex flex-col gap-4">
+              <VideoTuner
+                frame={activeFrame}
+                sparkleImg={sparkleImg}
+                base={baseBox}
+                settings={settings}
+                onChange={setSettings}
+              />
+            </div>
+          )}
+
+          {/* Multi-Video Batch Drawer */}
+          <VideoBatchDrawer
+            items={items}
+            activeId={activeId}
+            isProcessing={isProcessing}
+            onSelectActive={handleSelectActive}
+            onRemoveItem={handleRemoveItem}
+            onClearAll={handleClearAll}
+            onAddVideos={handleFilesSelected}
+            onProcessAll={handleProcessAll}
+          />
         </div>
       )}
     </div>

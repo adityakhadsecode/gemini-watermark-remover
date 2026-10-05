@@ -100,46 +100,55 @@ export function ImageStudio() {
     const startIndex = items.length;
     setActiveIndex(startIndex);
 
-    // Process items in sequence
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const itemIdx = startIndex + i;
+    // Process items with parallel concurrency (up to 3 simultaneous workers)
+    const CONCURRENCY = 3;
+    let nextIdx = 0;
 
-      setItems((prev) =>
-        prev.map((item, idx) => (idx === itemIdx ? { ...item, status: "processing" } : item)),
-      );
-
-      try {
-        const { cleanedUrl, blob, result, width, height } = await processFile(file, options);
+    const worker = async () => {
+      while (nextIdx < files.length) {
+        const i = nextIdx++;
+        const file = files[i];
+        const itemIdx = startIndex + i;
 
         setItems((prev) =>
-          prev.map((item, idx) =>
-            idx === itemIdx
-              ? {
-                  ...item,
-                  cleanedUrl,
-                  blob,
-                  status: result.status === "removed" ? "completed" : "skipped",
-                  confidence: result.detection?.confidence,
-                  variant: result.variant ?? undefined,
-                }
-              : item,
-          ),
+          prev.map((item, idx) => (idx === itemIdx ? { ...item, status: "processing" } : item)),
         );
 
-        if (itemIdx === startIndex) {
-          setActiveResult(result);
-          setDimensions({ width, height });
+        try {
+          const { cleanedUrl, blob, result, width, height } = await processFile(file, options);
+
+          setItems((prev) =>
+            prev.map((item, idx) =>
+              idx === itemIdx
+                ? {
+                    ...item,
+                    cleanedUrl,
+                    blob,
+                    status: result.status === "removed" ? "completed" : "skipped",
+                    confidence: result.detection?.confidence,
+                    variant: result.variant ?? undefined,
+                  }
+                : item,
+            ),
+          );
+
+          if (itemIdx === startIndex) {
+            setActiveResult(result);
+            setDimensions({ width, height });
+          }
+        } catch (err) {
+          console.error("Processing failed for", file.name, err);
+          setItems((prev) =>
+            prev.map((item, idx) =>
+              idx === itemIdx ? { ...item, status: "error", error: String(err) } : item,
+            ),
+          );
         }
-      } catch (err) {
-        console.error("Processing failed for", file.name, err);
-        setItems((prev) =>
-          prev.map((item, idx) =>
-            idx === itemIdx ? { ...item, status: "error", error: String(err) } : item,
-          ),
-        );
       }
-    }
+    };
+
+    const workerPool = Array.from({ length: Math.min(CONCURRENCY, files.length) }, () => worker());
+    await Promise.all(workerPool);
 
     setIsProcessing(false);
   };
@@ -319,6 +328,8 @@ export function ImageStudio() {
             }}
             onClear={handleClear}
             onRemoveItem={handleRemoveItem}
+            onAddFiles={handleFilesSelected}
+            isProcessing={isProcessing}
           />
         </div>
       )}

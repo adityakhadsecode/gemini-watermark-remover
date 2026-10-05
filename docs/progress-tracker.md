@@ -51,13 +51,14 @@
   - Provided instant live feedback so users verify that the watermark disappears in the corner preview before launching the full video export.
 - [x] **Phase 4: Workspace UI & Integration**:
   - `src/components/workspace/Header.tsx`: Studio header with segmented mode switcher (`Image Studio` vs `Video Studio`).
-  - `src/components/workspace/MediaDropzone.tsx`: Drag & drop, clipboard paste (`Ctrl+V`), and file picker.
+  - `src/components/workspace/MediaDropzone.tsx`: Drag & drop, clipboard paste (`Ctrl+V`), and multi-file picker for both images and videos.
   - `src/components/workspace/ComparisonSlider.tsx`: Split-wipe comparison slider with zoom/pan, hold-to-peek (`V`/`Space`), and focus-watermark.
   - `src/components/workspace/TuningDrawer.tsx`: Sensitivity slider, profile selector, force removal toggle, and inpainting controls.
   - `src/components/workspace/TelemetryBadge.tsx`: Displays resolution, matched profile, confidence meter, and execution time.
-  - `src/components/workspace/BatchDrawer.tsx`: Multi-image batch queue with thumbnail strip and `JSZip` export.
-  - `src/components/workspace/ImageStudio.tsx`: Complete image restoration workspace.
-  - `src/components/workspace/VideoStudio.tsx`: Video workspace with player, scrub bar, original toggle, and download.
+  - `src/components/workspace/BatchDrawer.tsx`: High-throughput image batch queue with 3-worker parallel concurrency, thumbnail strip, "Add More Images", and `JSZip` export.
+  - `src/components/workspace/ImageStudio.tsx`: Complete image restoration workspace with high-throughput batch processing.
+  - `src/components/workspace/VideoBatchDrawer.tsx`: Video batch queue with thumbnail previews, per-video progress meters, individual MP4 downloads, and `JSZip` bundle export.
+  - `src/components/workspace/VideoStudio.tsx`: Full video workspace with multi-video batch queue, live interactive corner tuner on active video, and sequential WebCodecs execution.
   - `src/app/page.tsx`: Assembled responsive workspace shell with studio switcher and technical footer.
   - Verified `npm run build` succeeds cleanly with 0 errors.
 
